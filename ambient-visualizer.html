@@ -1,0 +1,2083 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Slow Radio — a generative ambient visualizer</title>
+<meta name="description" content="A single-file generative ambient music engine and reactive visualizer. No audio files: every note is synthesized in the browser.">
+<style>
+  :root {
+    --ui: rgba(255,255,255,.86);
+    --ui-dim: rgba(255,255,255,.42);
+    --ui-faint: rgba(255,255,255,.16);
+    --edge: rgba(255,255,255,.14);
+    --panel: rgba(10,12,20,.42);
+    --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #04060b;
+    overflow: hidden;
+    font-family: var(--font);
+    color: var(--ui);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body { touch-action: manipulation; }
+
+  #stage {
+    position: fixed;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---------- gate ---------- */
+
+  #gate {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.6rem;
+    background: radial-gradient(120% 90% at 50% 45%, #0d1526 0%, #05070d 60%, #03040a 100%);
+    cursor: pointer;
+    transition: opacity 1.1s ease, visibility 1.1s;
+    padding: 2rem;
+    text-align: center;
+  }
+  #gate.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  #gate h1 {
+    margin: 0;
+    font-size: clamp(1.9rem, 6vw, 3.4rem);
+    font-weight: 200;
+    letter-spacing: .26em;
+    text-transform: uppercase;
+    text-indent: .26em;
+    color: rgba(255,255,255,.94);
+  }
+  #gate p {
+    margin: 0;
+    max-width: 34rem;
+    font-size: .84rem;
+    line-height: 1.85;
+    letter-spacing: .06em;
+    color: var(--ui-dim);
+  }
+  #gate .cta {
+    margin-top: .4rem;
+    padding: .85rem 2.4rem;
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    font-size: .72rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    text-indent: .3em;
+    color: var(--ui);
+    background: rgba(255,255,255,.03);
+    transition: background .4s ease, border-color .4s ease, letter-spacing .4s ease;
+  }
+  #gate:hover .cta {
+    background: rgba(255,255,255,.09);
+    border-color: rgba(255,255,255,.3);
+  }
+  #gate .pulse {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.22);
+    animation: breathe 4.4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(.72); opacity: .28; }
+    50%      { transform: scale(1.12); opacity: .85; }
+  }
+
+  /* ---------- chrome ---------- */
+
+  #chrome {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 1.2s ease;
+  }
+  #chrome.hidden { opacity: 0; }
+  #chrome > * { pointer-events: auto; }
+
+  #readout {
+    position: fixed;
+    top: max(1.5rem, env(safe-area-inset-top));
+    left: max(1.6rem, env(safe-area-inset-left));
+    font-family: var(--mono);
+    font-size: .68rem;
+    line-height: 1.9;
+    letter-spacing: .12em;
+    color: var(--ui-dim);
+    text-transform: uppercase;
+    user-select: none;
+    pointer-events: none;
+  }
+  #readout .k { color: rgba(255,255,255,.24); display: inline-block; min-width: 4.6em; }
+  #readout .v { color: rgba(255,255,255,.72); }
+  #readout #chordLine .v { color: #fff; letter-spacing: .18em; }
+
+  #dock {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: max(1.6rem, env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .45rem .5rem;
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    background: var(--panel);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    box-shadow: 0 12px 44px rgba(0,0,0,.5);
+    max-width: calc(100vw - 2rem);
+  }
+
+  .chip {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--ui-dim);
+    font-family: var(--font);
+    font-size: .68rem;
+    font-weight: 500;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    text-indent: .2em;
+    padding: .62rem 1.05rem;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .35s ease, background .35s ease;
+  }
+  .chip:hover { color: rgba(255,255,255,.8); }
+  .chip[aria-pressed="true"] {
+    color: #06080f;
+    background: rgba(255,255,255,.9);
+  }
+  .chip:focus-visible { outline: 1px solid rgba(255,255,255,.55); outline-offset: 2px; }
+
+  .sep { width: 1px; height: 18px; background: var(--ui-faint); flex: none; }
+
+  .icon {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--ui-dim);
+    width: 34px; height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    flex: none;
+    transition: color .3s ease, background .3s ease;
+  }
+  .icon:hover { color: #fff; background: rgba(255,255,255,.09); }
+  .icon:focus-visible { outline: 1px solid rgba(255,255,255,.55); outline-offset: 2px; }
+  .icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  #vol {
+    appearance: none;
+    width: 86px;
+    height: 24px;
+    background: transparent;
+    cursor: pointer;
+    flex: none;
+  }
+  #vol::-webkit-slider-runnable-track { height: 1px; background: rgba(255,255,255,.28); }
+  #vol::-webkit-slider-thumb {
+    appearance: none;
+    width: 9px; height: 9px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(255,255,255,.55);
+  }
+  #vol::-moz-range-track { height: 1px; background: rgba(255,255,255,.28); }
+  #vol::-moz-range-thumb { width: 9px; height: 9px; border: 0; border-radius: 50%; background: #fff; }
+  #vol:focus-visible { outline: 1px solid rgba(255,255,255,.45); outline-offset: 4px; border-radius: 4px; }
+
+  #hint {
+    position: fixed;
+    right: max(1.6rem, env(safe-area-inset-right));
+    bottom: max(1.7rem, env(safe-area-inset-bottom));
+    font-family: var(--mono);
+    font-size: .6rem;
+    letter-spacing: .14em;
+    line-height: 2;
+    text-align: right;
+    color: rgba(255,255,255,.2);
+    text-transform: uppercase;
+    user-select: none;
+    pointer-events: none;
+  }
+  #hint b { color: rgba(255,255,255,.4); font-weight: 500; }
+
+  #toast {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 30;
+    font-size: .78rem;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    text-indent: .34em;
+    color: rgba(255,255,255,.9);
+    text-shadow: 0 0 26px rgba(0,0,0,.9);
+    opacity: 0;
+    transition: opacity .5s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transition-duration: .16s; }
+
+  @media (max-width: 620px) {
+    #hint { display: none; }
+    #vol { width: 60px; }
+    .chip { padding: .6rem .75rem; font-size: .62rem; letter-spacing: .14em; }
+    #readout { font-size: .6rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #gate .pulse { animation: none; opacity: .5; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stage" aria-label="Generative ambient music visualizer"></canvas>
+
+<div id="chrome" class="hidden">
+  <div id="readout">
+    <div><span class="k">preset</span><span class="v" id="rPreset">—</span></div>
+    <div><span class="k">key</span><span class="v" id="rKey">—</span></div>
+    <div id="chordLine"><span class="k">chord</span><span class="v" id="rChord">—</span></div>
+    <div><span class="k">elapsed</span><span class="v" id="rTime">0:00</span></div>
+  </div>
+
+  <div id="dock" role="group" aria-label="Playback controls">
+    <button class="chip" id="pCalm"  aria-pressed="false">Calm</button>
+    <button class="chip" id="pFocus" aria-pressed="false">Focus</button>
+    <button class="chip" id="pEpic"  aria-pressed="false">Epic</button>
+    <div class="sep"></div>
+    <button class="icon" id="bPlay" title="Play / pause  (space)" aria-label="Play or pause">
+      <svg id="icPlay" viewBox="0 0 24 24"><path d="M7 5.5v13M12.5 5.5v13" style="display:none"/><path id="pathPause" d="M7 5v14M13 5v14"/><path id="pathPlay" d="M7 4.6l12 7.4-12 7.4z" style="display:none"/></svg>
+    </button>
+    <input type="range" id="vol" min="0" max="100" value="72" aria-label="Volume">
+    <button class="icon" id="bFull" title="Fullscreen  (f)" aria-label="Toggle fullscreen">
+      <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
+  </div>
+
+  <div id="hint">
+    <div><b>1 2 3</b> presets · <b>space</b> pause</div>
+    <div><b>f</b> fullscreen · <b>h</b> hide ui · <b>↑↓</b> volume</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="gate">
+  <div class="pulse"></div>
+  <h1>Slow Radio</h1>
+  <p>An ambient score written on the fly — no samples, no loops, no audio files. Every note is synthesized in this tab, and the picture you see is drawn from the music as it is being played.</p>
+  <div class="cta">Begin</div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   SLOW RADIO
+   A generative ambient engine + reactive visualizer in one file.
+
+   Audio  : Web Audio API only. Oscillators, code-generated noise buffers
+            and a procedurally-built convolution reverb. Nothing is loaded.
+   Music  : a lookahead scheduler walks a weighted chord graph and voices
+            pads, bass, bells and air over it. Every voice it fires also
+            pushes a timestamped event onto a queue.
+   Visual : the render loop drains that queue, so the picture reacts to the
+            notes themselves, not just to the output level. An analyser
+            supplies the spectrum ring on top of that.
+   ===================================================================== */
+
+/* ------------------------------------------------------------------ *
+ * 0. small utilities
+ * ------------------------------------------------------------------ */
+
+const TAU = Math.PI * 2;
+const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+const lerp  = (a, b, t) => a + (b - a) * t;
+const smoothstep = t => t * t * (3 - 2 * t);
+
+/* mulberry32 — small, fast, decent period. Seeded so a session is
+   reproducible while still never repeating audibly. */
+function makeRng(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rng = makeRng((Date.now() ^ 0x9e3779b9) >>> 0);
+const rand  = (a = 1, b = 0) => b + rng() * (a - b);
+const randi = n => (rng() * n) | 0;
+const pick  = arr => arr[(rng() * arr.length) | 0];
+
+/* weighted choice over an array of numbers */
+function weighted(weights) {
+  let total = 0;
+  for (let i = 0; i < weights.length; i++) total += weights[i];
+  let r = rng() * total;
+  for (let i = 0; i < weights.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return i;
+  }
+  return weights.length - 1;
+}
+
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+const NOTE_NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+const noteName = m => NOTE_NAMES[((m % 12) + 12) % 12];
+
+/* value noise in 1D — used for slow organic drift in the visuals */
+function makeNoise1D(seed) {
+  const r = makeRng(seed);
+  const table = new Float32Array(512);
+  for (let i = 0; i < 512; i++) table[i] = r() * 2 - 1;
+  return function (x) {
+    const i = Math.floor(x);
+    const f = x - i;
+    const a = table[i & 511];
+    const b = table[(i + 1) & 511];
+    return lerp(a, b, smoothstep(f));
+  };
+}
+const noiseA = makeNoise1D(1337);
+const noiseB = makeNoise1D(90210);
+
+
+/* ------------------------------------------------------------------ *
+ * 1. presets — musical identity and visual identity in one object
+ * ------------------------------------------------------------------ */
+
+/* Chords are semitone offsets from the key root. `q` is only used for the
+   on-screen label. `w` is the weight of arriving at this chord. */
+
+const PRESETS = {
+
+  calm: {
+    label: 'Calm',
+    root: 50,                        /* D3 */
+    beat: 1.32,                      /* seconds per beat — a slow tide     */
+    stepsPerBeat: 2,
+    chordSteps: 16,                  /* ≈ 10.5 s per chord                 */
+    scale: [0, 2, 4, 7, 9, 11],      /* major pentatonic + maj7            */
+    chords: [
+      { o: 0, q: 'maj9',  n: [0, 4, 7, 11, 14],  w: 3 },
+      { o: 9, q: 'm9',    n: [9, 12, 16, 19, 23], w: 2 },
+      { o: 5, q: 'maj9',  n: [5, 9, 12, 16, 19], w: 3 },
+      { o: 2, q: 'm11',   n: [2, 5, 9, 12, 17],  w: 2 },
+      { o: 7, q: 'sus9',  n: [7, 12, 14, 17, 21], w: 2 }
+    ],
+    density: { bell: 0.36, bass: 0.16, air: 0.34, pulse: 0.00 },
+    melodyRange: [67, 91],
+    bellDecay: [4.5, 8.5],
+    padLevel: 0.30, padAttack: 5.5, padCut: 900,
+    bassLevel: 0.34, bellLevel: 0.20, airLevel: 0.20,
+    send: { reverb: 0.62, delay: 0.34 },
+    delayTime: 0.62, delayFeedback: 0.42,
+    /* visuals */
+    style: 'tide',
+    bg:      [ 8, 16, 26],
+    accents: [[168, 82, 62], [190, 70, 66], [148, 55, 70], [212, 60, 72]],
+    spin: 0.028, ringAmp: 0.26, ringRadius: 0.30,
+    auroraScale: 1.45, auroraSpeed: 0.055, auroraLevel: 0.70,
+    shock: 0.55, zoom: 0.030, trail: 0.062, particleCap: 420, grain: 0.026, hueSpread: 120
+  },
+
+  focus: {
+    label: 'Focus',
+    root: 45,                        /* A2 */
+    beat: 0.62,
+    stepsPerBeat: 2,
+    chordSteps: 32,                  /* ≈ 10 s — steady, unhurried         */
+    scale: [0, 2, 3, 5, 7, 9, 10],   /* dorian                             */
+    chords: [
+      { o: 0,  q: 'm9',   n: [0, 3, 7, 10, 14],  w: 4 },
+      { o: 5,  q: '9',    n: [5, 9, 12, 15, 19], w: 2 },
+      { o: 10, q: 'maj7', n: [10, 14, 17, 21],   w: 2 },
+      { o: 3,  q: 'maj9', n: [3, 7, 10, 14, 17], w: 2 },
+      { o: 7,  q: 'm7',   n: [7, 10, 14, 17],    w: 2 }
+    ],
+    density: { bell: 0.46, bass: 0.20, air: 0.14, pulse: 0.62 },
+    melodyRange: [69, 93],
+    bellDecay: [1.5, 3.4],
+    padLevel: 0.21, padAttack: 3.2, padCut: 1150,
+    bassLevel: 0.30, bellLevel: 0.17, airLevel: 0.11,
+    send: { reverb: 0.40, delay: 0.46 },
+    delayTime: 0.465, delayFeedback: 0.50,
+    style: 'orbit',
+    bg:      [10, 12, 15],
+    accents: [[38, 74, 62], [46, 62, 68], [22, 70, 58], [168, 42, 60]],
+    spin: 0.075, ringAmp: 0.20, ringRadius: 0.245,
+    auroraScale: 0.95, auroraSpeed: 0.085, auroraLevel: 0.40,
+    shock: 0.34, zoom: 0.012, trail: 0.090, particleCap: 520, grain: 0.022, hueSpread: 105
+  },
+
+  epic: {
+    label: 'Epic',
+    root: 41,                        /* F2 */
+    beat: 0.94,
+    stepsPerBeat: 2,
+    chordSteps: 24,
+    scale: [0, 2, 3, 5, 7, 8, 10],   /* aeolian                            */
+    chords: [
+      { o: 0,  q: 'm',     n: [0, 3, 7, 12, 15],   w: 4 },
+      { o: 8,  q: 'maj',   n: [8, 12, 15, 20],     w: 3 },
+      { o: 5,  q: 'm9',    n: [5, 8, 12, 15, 19],  w: 2 },
+      { o: 10, q: 'maj',   n: [10, 14, 17, 22],    w: 3 },
+      { o: 3,  q: 'majadd9', n: [3, 7, 10, 14, 17], w: 2 },
+      { o: 7,  q: 'm7',    n: [7, 10, 14, 17],     w: 2 }
+    ],
+    density: { bell: 0.34, bass: 0.30, air: 0.30, pulse: 0.14 },
+    melodyRange: [64, 88],
+    bellDecay: [3.0, 6.0],
+    padLevel: 0.32, padAttack: 4.0, padCut: 1400,
+    bassLevel: 0.46, bellLevel: 0.19, airLevel: 0.24,
+    send: { reverb: 0.72, delay: 0.30 },
+    delayTime: 0.705, delayFeedback: 0.40,
+    style: 'nova',
+    bg:      [14,  8, 20],
+    accents: [[292, 70, 64], [326, 74, 62], [ 20, 82, 62], [268, 62, 66]],
+    spin: 0.046, ringAmp: 0.38, ringRadius: 0.275,
+    auroraScale: 1.8, auroraSpeed: 0.07, auroraLevel: 0.85,
+    shock: 1.0, zoom: 0.052, trail: 0.055, particleCap: 620, grain: 0.028, hueSpread: 118
+  }
+};
+
+const PRESET_ORDER = ['calm', 'focus', 'epic'];
+
+
+/* ------------------------------------------------------------------ *
+ * 2. audio engine
+ * ------------------------------------------------------------------ */
+
+const Audio = {
+  ctx: null,
+  ready: false,
+  running: false,
+
+  master: null,      /* final trim, feeds the limiter                 */
+  voices: null,      /* everything musical — faded on preset changes  */
+  analyser: null,
+  freqData: null,
+  reverbSend: null,
+  delaySend: null,
+  padFilter: null,
+  padLfo: null,
+
+  noiseBuf: null,
+
+  /* transport */
+  nextStepTime: 0,
+  step: 0,
+  timerId: 0,
+  startedAt: 0,
+
+  /* musical state */
+  preset: null,
+  presetKey: 'calm',
+  keyRoot: 50,
+  chordIdx: 0,
+  chord: null,
+  lastMelody: 78,
+  keyDrift: 0,
+  nextDriftStep: 0,
+  padVoices: [],
+
+  /* every started source node, so a preset change can retire the old score */
+  live: new Set(),
+
+  /* visual hand-off */
+  events: []
+};
+
+const LOOKAHEAD = 2.2;    /* seconds of music scheduled ahead of time  */
+const TICK_MS  = 200;     /* background tabs throttle this to 1000 ms, *
+                             which the lookahead above still covers.   */
+
+function initAudio() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = Audio.ctx = new AC({ latencyHint: 'playback' });
+
+  /* ---- master bus: trim -> gentle limiter -> out ---- */
+  const master = ctx.createGain();
+  /* Start from the persisted slider, not a fixed default: a returning
+     listener who left this muted must not get full volume on Begin. */
+  master.gain.value = masterGainFor(State.volume);
+
+  const limiter = ctx.createDynamicsCompressor();
+  limiter.threshold.value = -10;
+  limiter.knee.value = 26;
+  limiter.ratio.value = 8;
+  limiter.attack.value = 0.006;
+  limiter.release.value = 0.32;
+
+  master.connect(limiter);
+  limiter.connect(ctx.destination);
+
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 2048;
+  analyser.smoothingTimeConstant = 0.72;
+  analyser.minDecibels = -92;
+  analyser.maxDecibels = -12;
+  limiter.connect(analyser);
+
+  /* ---- musical bus, faded down during preset changes ---- */
+  const voices = ctx.createGain();
+  voices.gain.value = 0;
+  voices.connect(master);
+
+  /* ---- reverb: impulse response generated from noise ---- */
+  const convolver = ctx.createConvolver();
+  convolver.buffer = buildImpulse(ctx, 5.4, 2.6, 0.34);
+
+  const reverbSend = ctx.createGain();
+  reverbSend.gain.value = 0.55;
+
+  const reverbTone = ctx.createBiquadFilter();
+  reverbTone.type = 'lowpass';
+  reverbTone.frequency.value = 3200;
+
+  const reverbHP = ctx.createBiquadFilter();
+  reverbHP.type = 'highpass';
+  reverbHP.frequency.value = 180;
+
+  reverbSend.connect(reverbHP);
+  reverbHP.connect(convolver);
+  convolver.connect(reverbTone);
+  reverbTone.connect(master);
+
+  /* ---- ping-pong delay ---- */
+  const delaySend = ctx.createGain();
+  delaySend.gain.value = 0.36;
+
+  const dL = ctx.createDelay(4), dR = ctx.createDelay(4);
+  const fbL = ctx.createGain(), fbR = ctx.createGain();
+  const damp = ctx.createBiquadFilter();
+  damp.type = 'lowpass';
+  damp.frequency.value = 2100;
+
+  const panL = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
+  const panR = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
+  if (panL.pan) { panL.pan.value = -0.75; panR.pan.value = 0.75; }
+
+  dL.delayTime.value = 0.6;
+  dR.delayTime.value = 0.9;
+  fbL.gain.value = 0.42;
+  fbR.gain.value = 0.42;
+
+  delaySend.connect(dL);
+  dL.connect(panL); panL.connect(master);
+  dL.connect(fbR); fbR.connect(damp); damp.connect(dR);
+  dR.connect(panR); panR.connect(master);
+  dR.connect(fbL); fbL.connect(dL);
+
+  /* ---- shared noise source material ---- */
+  Audio.noiseBuf = buildNoise(ctx, 4);
+
+  Object.assign(Audio, {
+    master, voices, analyser, reverbSend, delaySend,
+    delayL: dL, delayR: dR, fbL, fbR, reverbTone,
+    freqData: new Uint8Array(analyser.frequencyBinCount),
+    ready: true
+  });
+}
+
+/* Exponentially decaying stereo noise = a serviceable hall.
+   The running one-pole lowpass keeps the tail from hissing. */
+function buildImpulse(ctx, seconds, decay, damp) {
+  const rate = ctx.sampleRate;
+  const len = Math.max(1, (rate * seconds) | 0);
+  const buf = ctx.createBuffer(2, len, rate);
+  const r = makeRng(7717);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = buf.getChannelData(ch);
+    let lp = 0;
+    for (let i = 0; i < len; i++) {
+      const t = i / len;
+      const env = Math.pow(1 - t, decay);
+      const n = (r() * 2 - 1) * env;
+      lp += (n - lp) * damp;
+      /* short fade-in stands in for a pre-delay */
+      data[i] = lp * Math.min(1, i / (rate * 0.012));
+    }
+  }
+  return buf;
+}
+
+function buildNoise(ctx, seconds) {
+  const rate = ctx.sampleRate;
+  const len = (rate * seconds) | 0;
+  const buf = ctx.createBuffer(1, len, rate);
+  const d = buf.getChannelData(0);
+  const r = makeRng(4242);
+  for (let i = 0; i < len; i++) d[i] = r() * 2 - 1;
+  return buf;
+}
+
+/* Frees a voice's nodes once it has finished sounding. Without this a
+   multi-hour session slowly accumulates dead nodes. Every started source
+   is also tracked so a preset change can retire the outgoing score. */
+function autoRelease(source, ...nodes) {
+  Audio.live.add(source);
+  source.onended = () => {
+    Audio.live.delete(source);
+    try { source.disconnect(); } catch (e) {}
+    for (const n of nodes) { try { n.disconnect(); } catch (e) {} }
+  };
+}
+
+/* Silence everything the outgoing preset scheduled. Pads are held for a
+   whole chord and bell tails run to 8.5 s, so without this they are still
+   attached to the shared musical bus when the crossfade ramps it back up
+   — and the old key fades in underneath the new one. Callers duck the bus
+   to zero first, so stopping mid-envelope cannot click. Sources whose
+   start time has not arrived yet are cancelled outright. */
+function retireVoices() {
+  if (!Audio.ready) return;
+  const t = Audio.ctx.currentTime;
+  for (const src of Array.from(Audio.live)) {
+    try { src.stop(t); } catch (e) { Audio.live.delete(src); }
+  }
+}
+
+function makePanner(pan) {
+  const ctx = Audio.ctx;
+  if (ctx.createStereoPanner) {
+    const p = ctx.createStereoPanner();
+    p.pan.value = clamp(pan, -1, 1);
+    return p;
+  }
+  return ctx.createGain();
+}
+
+/* ---- voices ------------------------------------------------------- */
+
+/* Sustained pad: three detuned saws per note through a slowly opening
+   lowpass. Held until the chord changes, then released. */
+function playPad(midi, t, dur, level) {
+  const ctx = Audio.ctx, P = Audio.preset;
+  const out = ctx.createGain();
+  out.gain.value = 0;
+
+  const filt = ctx.createBiquadFilter();
+  filt.type = 'lowpass';
+  filt.Q.value = 0.8;
+  filt.frequency.setValueAtTime(180, t);
+  filt.frequency.linearRampToValueAtTime(P.padCut * rand(1.25, 0.75), t + P.padAttack * 1.4);
+
+  const pan = makePanner(rand(0.55, -0.55));
+  out.connect(filt);
+  filt.connect(pan);
+  pan.connect(Audio.voices);
+
+  const sendR = ctx.createGain();
+  sendR.gain.value = 0.5;
+  filt.connect(sendR);
+  sendR.connect(Audio.reverbSend);
+
+  const oscs = [];
+  const detunes = [-7, 0, 6];
+  for (let i = 0; i < detunes.length; i++) {
+    const o = ctx.createOscillator();
+    o.type = i === 1 ? 'triangle' : 'sawtooth';
+    o.frequency.value = mtof(midi);
+    o.detune.value = detunes[i] + rand(4, -4);
+    const g = ctx.createGain();
+    g.gain.value = i === 1 ? 0.5 : 0.26;
+    o.connect(g);
+    g.connect(out);
+    o.start(t);
+    o.stop(t + dur + 3.2);
+    autoRelease(o, g);
+    oscs.push(o);
+  }
+
+  /* a sub-audio wobble keeps the pad from sitting perfectly still */
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = rand(0.09, 0.04);
+  const lfoAmt = ctx.createGain();
+  lfoAmt.gain.value = rand(6, 2);
+  lfo.connect(lfoAmt);
+  lfoAmt.connect(oscs[0].detune);
+  lfo.start(t);
+  lfo.stop(t + dur + 3.2);
+  autoRelease(lfo, lfoAmt);
+
+  const a = P.padAttack;
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(Math.max(0.0002, level), t + a);
+  out.gain.setValueAtTime(level, t + dur);
+  out.gain.exponentialRampToValueAtTime(0.0001, t + dur + 3.0);
+
+  setTimeout(() => {
+    try { out.disconnect(); filt.disconnect(); pan.disconnect(); sendR.disconnect(); } catch (e) {}
+  }, (t + dur + 4 - ctx.currentTime) * 1000 + 400);
+
+  return { out, until: t + dur + 3.2 };
+}
+
+/* Bell / lead: two-operator FM, fast attack, long exponential tail. */
+function playBell(midi, t, level, decay, pan) {
+  const ctx = Audio.ctx;
+  const f = mtof(midi);
+
+  const carrier = ctx.createOscillator();
+  carrier.type = 'sine';
+  carrier.frequency.value = f;
+
+  const mod = ctx.createOscillator();
+  mod.type = 'sine';
+  mod.frequency.value = f * pick([2, 2, 3, 3.5, 4]);
+
+  const modGain = ctx.createGain();
+  const modDepth = f * rand(2.4, 0.9);
+  modGain.gain.setValueAtTime(modDepth, t);
+  modGain.gain.exponentialRampToValueAtTime(modDepth * 0.02, t + decay * 0.45);
+  mod.connect(modGain);
+  modGain.connect(carrier.frequency);
+
+  const vca = ctx.createGain();
+  vca.gain.setValueAtTime(0.0001, t);
+  vca.gain.exponentialRampToValueAtTime(level, t + 0.014);
+  vca.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+
+  const tone = ctx.createBiquadFilter();
+  tone.type = 'lowpass';
+  tone.frequency.value = clamp(f * 7, 900, 9000);
+
+  const pn = makePanner(pan);
+
+  carrier.connect(vca);
+  vca.connect(tone);
+  tone.connect(pn);
+  pn.connect(Audio.voices);
+
+  const sR = ctx.createGain(); sR.gain.value = Audio.preset.send.reverb;
+  const sD = ctx.createGain(); sD.gain.value = Audio.preset.send.delay;
+  pn.connect(sR); sR.connect(Audio.reverbSend);
+  pn.connect(sD); sD.connect(Audio.delaySend);
+
+  carrier.start(t); carrier.stop(t + decay + 0.2);
+  mod.start(t);     mod.stop(t + decay + 0.2);
+  autoRelease(carrier, vca, tone, pn, sR, sD, modGain);
+  autoRelease(mod, modGain);
+}
+
+/* Bass: sine fundamental with a quiet triangle octave for definition. */
+function playBass(midi, t, dur, level) {
+  const ctx = Audio.ctx;
+  const f = mtof(midi);
+
+  const vca = ctx.createGain();
+  vca.gain.setValueAtTime(0.0001, t);
+  vca.gain.exponentialRampToValueAtTime(level, t + 0.55);
+  vca.gain.setValueAtTime(level, t + dur * 0.55);
+  vca.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 320;
+
+  vca.connect(lp);
+  lp.connect(Audio.voices);
+
+  const sR = ctx.createGain(); sR.gain.value = 0.14;
+  lp.connect(sR); sR.connect(Audio.reverbSend);
+
+  const o1 = ctx.createOscillator();
+  o1.type = 'sine';
+  o1.frequency.value = f;
+  const g1 = ctx.createGain(); g1.gain.value = 1;
+  o1.connect(g1); g1.connect(vca);
+
+  const o2 = ctx.createOscillator();
+  o2.type = 'triangle';
+  o2.frequency.value = f * 2;
+  o2.detune.value = rand(6, -6);
+  const g2 = ctx.createGain(); g2.gain.value = 0.16;
+  o2.connect(g2); g2.connect(vca);
+
+  o1.start(t); o1.stop(t + dur + 0.2);
+  o2.start(t); o2.stop(t + dur + 0.2);
+  autoRelease(o1, g1, vca, lp, sR);
+  autoRelease(o2, g2);
+}
+
+/* Air: a band-passed noise swell that sweeps slowly across the stereo
+   field. This is what stops the texture from sounding like pure synth. */
+function playAir(t, dur, level, centre) {
+  const ctx = Audio.ctx;
+  const src = ctx.createBufferSource();
+  src.buffer = Audio.noiseBuf;
+  src.loop = true;
+  src.playbackRate.value = rand(1.2, 0.8);
+
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.Q.value = rand(3.2, 1.2);
+  bp.frequency.setValueAtTime(centre * 0.6, t);
+  bp.frequency.exponentialRampToValueAtTime(centre * rand(1.9, 1.1), t + dur);
+
+  const vca = ctx.createGain();
+  vca.gain.setValueAtTime(0.0001, t);
+  vca.gain.exponentialRampToValueAtTime(level, t + dur * 0.42);
+  vca.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+  const pan = makePanner(rand(0.9, -0.9));
+
+  src.connect(bp); bp.connect(vca); vca.connect(pan); pan.connect(Audio.voices);
+  const sR = ctx.createGain(); sR.gain.value = 0.7;
+  pan.connect(sR); sR.connect(Audio.reverbSend);
+
+  src.start(t);
+  src.stop(t + dur + 0.1);
+  autoRelease(src, bp, vca, pan, sR);
+}
+
+/* Pulse: a soft filtered tick. Focus uses it as a metronome you stop
+   noticing; Epic uses a lower, heavier version as a drum. */
+function playPulse(t, level, freq, decay) {
+  const ctx = Audio.ctx;
+  const src = ctx.createBufferSource();
+  src.buffer = Audio.noiseBuf;
+  src.playbackRate.value = 1;
+
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.Q.value = 1.4;
+  bp.frequency.setValueAtTime(freq * 2.2, t);
+  bp.frequency.exponentialRampToValueAtTime(freq, t + decay);
+
+  const vca = ctx.createGain();
+  vca.gain.setValueAtTime(0.0001, t);
+  vca.gain.exponentialRampToValueAtTime(level, t + 0.006);
+  vca.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+
+  const pan = makePanner(rand(0.3, -0.3));
+  src.connect(bp); bp.connect(vca); vca.connect(pan); pan.connect(Audio.voices);
+  const sR = ctx.createGain(); sR.gain.value = 0.3;
+  pan.connect(sR); sR.connect(Audio.reverbSend);
+
+  const offset = rand(2.5, 0.1);
+  src.start(t, offset, decay + 0.15);
+  autoRelease(src, bp, vca, pan, sR);
+}
+
+/* ---- composition -------------------------------------------------- */
+
+/* The renderer drains this queue from the head only, so it has to be kept
+   in time order rather than emission order. A shadow bell is scheduled up
+   to 1.5 steps into the future and would otherwise sit at the head holding
+   back every earlier-timed event queued after it, which shows up as the
+   visuals lagging the music by a step. Input is very nearly sorted, so
+   scanning back from the tail is effectively constant time. */
+function emit(type, time, data) {
+  const q = Audio.events;
+  let i = q.length;
+  while (i > 0 && q[i - 1].time > time) i--;
+  q.splice(i, 0, { type, time, data });
+  if (q.length > 512) q.splice(0, 256);
+}
+
+function chooseChord() {
+  const P = Audio.preset;
+  const weights = P.chords.map((c, i) => i === Audio.chordIdx ? c.w * 0.12 : c.w);
+  return weighted(weights);
+}
+
+function currentKeyRoot() {
+  return Audio.preset.root + Audio.keyDrift;
+}
+
+/* Voice the chord: the pad holds it, and it becomes the note pool that
+   the bell and bass draw from. */
+function changeChord(t) {
+  const P = Audio.preset;
+  Audio.chordIdx = chooseChord();
+  const chord = P.chords[Audio.chordIdx];
+  Audio.chord = chord;
+
+  /* release whatever the pad was holding */
+  const held = P.chordSteps * (P.beat / P.stepsPerBeat);
+
+  const root = currentKeyRoot();
+  const notes = chord.n.map(n => root + n);
+
+  /* keep the pad in a comfortable register regardless of key drift */
+  const voiced = notes.map((m, i) => {
+    let v = m + 12;
+    while (v < 52) v += 12;
+    while (v > 84) v -= 12;
+    return v;
+  });
+
+  const perVoice = P.padLevel / Math.sqrt(voiced.length);
+  for (const m of voiced) {
+    /* stagger the entries so the chord blooms instead of switching */
+    playPad(m, t + rand(0.9, 0), held * 0.94, perVoice);
+  }
+
+  emit('chord', t, {
+    name: noteName(root + chord.o) + ' ' + chord.q,
+    pcs: voiced.map(m => ((m % 12) + 12) % 12),
+    root: ((root + chord.o) % 12 + 12) % 12
+  });
+}
+
+/* Melody note choice: chord tones first, scale tones as passing colour,
+   always biased toward the smallest move from the previous note. */
+function chooseMelodyNote() {
+  const P = Audio.preset;
+  const root = currentKeyRoot();
+  const pool = [];
+
+  const useChordTone = rng() < 0.68;
+  const set = useChordTone ? Audio.chord.n : P.scale;
+
+  for (let oct = 0; oct <= 4; oct++) {
+    for (const s of set) {
+      const m = root + s + oct * 12;
+      if (m >= P.melodyRange[0] && m <= P.melodyRange[1]) pool.push(m);
+    }
+  }
+  if (!pool.length) return Audio.lastMelody;
+
+  /* weight by proximity to the last note — this is what makes it sound
+     like a line rather than a sequence of random pitches */
+  const weights = pool.map(m => {
+    const d = Math.abs(m - Audio.lastMelody);
+    return 1 / (1 + Math.pow(d / 3.2, 2));
+  });
+  const note = pool[weighted(weights)];
+  Audio.lastMelody = note;
+  return note;
+}
+
+function scheduleStep(step, t) {
+  const P = Audio.preset;
+  const stepDur = P.beat / P.stepsPerBeat;
+  const inChord = step % P.chordSteps;
+
+  if (inChord === 0) changeChord(t);
+  if (!Audio.chord) return;
+
+  const root = currentKeyRoot();
+  const beatPos = step % (P.stepsPerBeat * 4);
+
+  /* --- pulse --------------------------------------------------- */
+  if (P.density.pulse > 0) {
+    const onBeat = step % P.stepsPerBeat === 0;
+    const accent = step % (P.stepsPerBeat * 4) === 0;
+    if (onBeat && rng() < P.density.pulse) {
+      const isEpic = Audio.presetKey === 'epic';
+      playPulse(
+        t,
+        (accent ? 0.13 : 0.06) * (isEpic ? 1.9 : 1),
+        isEpic ? 120 : 2400,
+        isEpic ? 0.42 : 0.055
+      );
+      if (accent) emit('pulse', t, { power: isEpic ? 1 : 0.42 });
+    }
+  }
+
+  /* --- bass ---------------------------------------------------- */
+  const bassSlot = step % (P.stepsPerBeat * 4) === 0;
+  if (bassSlot && rng() < P.density.bass * 4) {
+    let m = root + Audio.chord.o - 12;
+    while (m < 28) m += 12;
+    while (m > 48) m -= 12;
+    const dur = stepDur * P.stepsPerBeat * rand(7, 3);
+    playBass(m, t, dur, P.bassLevel);
+    emit('bass', t, { pc: ((m % 12) + 12) % 12, power: 1 });
+  }
+
+  /* --- bell / melody ------------------------------------------- */
+  if (rng() < P.density.bell) {
+    const m = chooseMelodyNote();
+    const decay = rand(P.bellDecay[1], P.bellDecay[0]);
+    const pan = clamp(((m - P.melodyRange[0]) / (P.melodyRange[1] - P.melodyRange[0]) - 0.5) * 1.5 + rand(0.3, -0.3), -1, 1);
+    const vel = rand(1.0, 0.45);
+    /* a few milliseconds of drift so nothing lands mechanically */
+    const when = t + rand(0.035, 0);
+    playBell(m, when, P.bellLevel * vel, decay, pan);
+    emit('bell', when, {
+      pc: ((m % 12) + 12) % 12,
+      midi: m,
+      norm: clamp((m - P.melodyRange[0]) / (P.melodyRange[1] - P.melodyRange[0]), 0, 1),
+      vel, pan, decay
+    });
+
+    /* an occasional shadow a fifth or octave up, delayed slightly */
+    if (rng() < 0.2) {
+      const m2 = m + pick([7, 12, 12, 19]);
+      if (m2 <= P.melodyRange[1] + 6) {
+        const w2 = when + stepDur * pick([0.5, 1, 1.5]);
+        playBell(m2, w2, P.bellLevel * vel * 0.42, decay * 0.8, -pan);
+        emit('bell', w2, {
+          pc: ((m2 % 12) + 12) % 12, midi: m2,
+          norm: clamp((m2 - P.melodyRange[0]) / (P.melodyRange[1] - P.melodyRange[0]), 0, 1),
+          vel: vel * 0.5, pan: -pan, decay
+        });
+      }
+    }
+  }
+
+  /* --- air ----------------------------------------------------- */
+  if (inChord % (P.chordSteps / 2) === 0 && rng() < P.density.air * 2) {
+    const dur = rand(11, 5);
+    playAir(t, dur, P.airLevel, mtof(root + Audio.chord.o + 24) * rand(1.6, 0.7));
+    emit('air', t, { dur });
+  }
+
+  /* --- slow key drift, so an hour never settles into one loop --- */
+  if (step >= Audio.nextDriftStep) {
+    Audio.keyDrift = clamp(Audio.keyDrift + pick([-2, -1, 2, 3, 5]), -5, 7);
+    Audio.nextDriftStep = step + P.chordSteps * randi(14) + P.chordSteps * 18;
+    emit('drift', t, { key: noteName(currentKeyRoot()) });
+  }
+}
+
+function scheduler() {
+  const ctx = Audio.ctx;
+  const P = Audio.preset;
+  const stepDur = P.beat / P.stepsPerBeat;
+
+  while (Audio.nextStepTime < ctx.currentTime + LOOKAHEAD) {
+    /* if we ever fall badly behind (tab was frozen), resync rather than
+       trying to catch up by firing hundreds of notes at once */
+    if (Audio.nextStepTime < ctx.currentTime - 0.5) {
+      Audio.nextStepTime = ctx.currentTime + 0.05;
+    }
+    scheduleStep(Audio.step, Audio.nextStepTime);
+    Audio.nextStepTime += stepDur;
+    Audio.step++;
+  }
+}
+
+/* ---- transport / preset switching --------------------------------- */
+
+function applyPresetAudio(key) {
+  const P = PRESETS[key];
+  Audio.preset = P;
+  Audio.presetKey = key;
+  Audio.keyRoot = P.root;
+  Audio.lastMelody = (P.melodyRange[0] + P.melodyRange[1]) / 2 | 0;
+
+  const ctx = Audio.ctx, now = ctx.currentTime;
+  Audio.reverbSend.gain.setTargetAtTime(P.send.reverb * 0.9, now, 0.6);
+  Audio.delaySend.gain.setTargetAtTime(P.send.delay * 0.8, now, 0.6);
+  Audio.delayL.delayTime.setTargetAtTime(P.delayTime, now, 0.8);
+  Audio.delayR.delayTime.setTargetAtTime(P.delayTime * 1.5, now, 0.8);
+  Audio.fbL.gain.setTargetAtTime(P.delayFeedback, now, 0.6);
+  Audio.fbR.gain.setTargetAtTime(P.delayFeedback, now, 0.6);
+  Audio.reverbTone.frequency.setTargetAtTime(key === 'focus' ? 2600 : 3600, now, 0.8);
+}
+
+function startTransport() {
+  const ctx = Audio.ctx;
+  Audio.step = 0;
+  Audio.chordIdx = randi(Audio.preset.chords.length);
+  Audio.chord = null;
+  Audio.keyDrift = 0;
+  Audio.nextDriftStep = Audio.preset.chordSteps * 20;
+  Audio.nextStepTime = ctx.currentTime + 0.35;
+  clearInterval(Audio.timerId);
+  Audio.timerId = setInterval(scheduler, TICK_MS);
+  scheduler();
+}
+
+let switching = false;
+
+function setPreset(key, immediate) {
+  if (!PRESETS[key]) return;
+  const wasKey = Audio.presetKey;
+  State.presetKey = key;
+  Visual.retarget(key);
+  syncChips();
+  save();
+
+  if (!Audio.ready) { Audio.presetKey = key; return; }
+
+  if (immediate || !Audio.running) {
+    retireVoices();
+    applyPresetAudio(key);
+    if (Audio.running) startTransport();
+    return;
+  }
+
+  /* A request arriving mid-crossfade is absorbed rather than dropped: the
+     transition in flight reads State.presetKey when it lands, so it always
+     applies the most recent choice and the engine cannot end up on a
+     different preset from the one the chips and storage show. */
+  if (switching) return;
+  if (key === wasKey) return;
+
+  /* crossfade: duck the musical bus, swap the score underneath it,
+     then bring it back. Nothing ever hard-cuts. */
+  switching = true;
+  const ctx = Audio.ctx, g = Audio.voices.gain;
+  g.cancelScheduledValues(ctx.currentTime);
+  g.setValueAtTime(g.value, ctx.currentTime);
+  g.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.5);
+
+  setTimeout(() => {
+    const target = State.presetKey;
+    retireVoices();
+    applyPresetAudio(target);
+    startTransport();
+    const t = Audio.ctx.currentTime;
+    Audio.voices.gain.setValueAtTime(0.0001, t);
+    Audio.voices.gain.linearRampToValueAtTime(1, t + 2.6);
+    switching = false;
+  }, 1550);
+}
+
+function play() {
+  if (!Audio.ready) {
+    initAudio();
+    applyPresetAudio(State.presetKey);
+  }
+  const ctx = Audio.ctx;
+  if (ctx.state === 'suspended') ctx.resume();
+  if (Audio.running) return;
+
+  Audio.running = true;
+  Audio.startedAt = Audio.startedAt || Date.now();
+  startTransport();
+  const t = ctx.currentTime;
+  Audio.voices.gain.cancelScheduledValues(t);
+  Audio.voices.gain.setValueAtTime(Math.max(0.0001, Audio.voices.gain.value), t);
+  Audio.voices.gain.linearRampToValueAtTime(1, t + 3.2);
+  syncPlayIcon();
+}
+
+function pause() {
+  if (!Audio.ready || !Audio.running) return;
+  const ctx = Audio.ctx, t = ctx.currentTime;
+  Audio.voices.gain.cancelScheduledValues(t);
+  Audio.voices.gain.setValueAtTime(Audio.voices.gain.value, t);
+  Audio.voices.gain.linearRampToValueAtTime(0.0001, t + 1.4);
+  clearInterval(Audio.timerId);
+  Audio.timerId = 0;
+  Audio.running = false;
+  /* let the reverb tail finish before the context sleeps */
+  setTimeout(() => { if (!Audio.running) Audio.ctx.suspend(); }, 6500);
+  syncPlayIcon();
+}
+
+/* perceptual-ish taper */
+function masterGainFor(v) {
+  return Math.pow(clamp(v, 0, 1), 1.6) * 1.05;
+}
+
+function setVolume(v) {
+  State.volume = clamp(v, 0, 1);
+  if (Audio.ready) {
+    Audio.master.gain.setTargetAtTime(masterGainFor(State.volume), Audio.ctx.currentTime, 0.08);
+  }
+  save();
+}
+
+
+/* ------------------------------------------------------------------ *
+ * 3. visuals
+ * ------------------------------------------------------------------ */
+
+const RING_PTS = 132;   /* control points around the spectrum ring */
+
+const canvas = document.getElementById('stage');
+const ctx2d = canvas.getContext('2d', { alpha: false, desynchronized: true });
+
+/* Transients — particles, ripples, the spectrum outline — are drawn into
+   an offscreen buffer that decays via destination-out. The background and
+   the aurora are repainted from scratch on the main canvas every frame.
+   Keeping the two apart is the whole trick: additively drawing a static
+   bright element onto a slowly-fading copy of the previous frame will
+   always accumulate to white, which is exactly what a centred glow does. */
+const trailCanvas = document.createElement('canvas');
+const tctx = trailCanvas.getContext('2d');
+
+const Visual = {
+  w: 0, h: 0, dpr: 1, cx: 0, cy: 0, unit: 0,
+
+  /* palette state — every colour lerps toward the preset's target so a
+     preset change is a slow bleed, not a cut */
+  bg: [8, 16, 26], bgT: [8, 16, 26],
+  accents: [], accentsT: [],
+  p: null,                       /* live numeric style, also lerped     */
+  pT: null,
+
+  time: 0,
+  spin: 0,
+  energy: 0,                     /* smoothed overall level              */
+  bassEnergy: 0,
+  flash: 0,                      /* transient brightness on impacts     */
+  zoomPhase: 0,
+
+  spectrum: null,                /* smoothed polar samples              */
+  specScratch: null,
+  SPEC_N: 128,
+
+  ringX: null, ringY: null,      /* scratch geometry, reused each frame */
+
+  particles: [],
+  rings: [],
+  chordPcs: [0, 4, 7],
+  chordName: '—',
+  keyName: '—',
+
+  quality: 2,                    /* 2 = full, 1 = reduced, 0 = minimal  */
+  qScale: 1,                     /* particle budget multiplier          */
+  frameMs: 16.7,
+  grainPattern: null,
+
+  init() {
+    this.spectrum = new Float32Array(this.SPEC_N);
+    this.specScratch = new Float32Array(this.SPEC_N);
+    this.ringX = new Float64Array(RING_PTS);
+    this.ringY = new Float64Array(RING_PTS);
+    const p0 = PRESETS[State.presetKey];
+    this.p  = styleOf(p0);
+    this.pT = styleOf(p0);
+    this.bg  = p0.bg.slice();
+    this.bgT = p0.bg.slice();
+    this.accents  = p0.accents.map(a => a.slice());
+    this.accentsT = p0.accents.map(a => a.slice());
+    this.resize();
+    this.buildGrain();
+  },
+
+  retarget(key) {
+    const P = PRESETS[key];
+    this.pT = styleOf(P);
+    this.bgT = P.bg.slice();
+    this.accentsT = P.accents.map(a => a.slice());
+  },
+
+  resize() {
+    const dpr = this.dpr = clamp(window.devicePixelRatio || 1, 1, 2);
+    const w = Math.max(1, window.innerWidth);
+    const h = Math.max(1, window.innerHeight);
+    this.w = w; this.h = h;
+    canvas.width  = (w * dpr) | 0;
+    canvas.height = (h * dpr) | 0;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    trailCanvas.width  = canvas.width;
+    trailCanvas.height = canvas.height;
+    tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    this.cx = w / 2;
+    this.cy = h / 2;
+    this.unit = Math.min(w, h);
+    /* a full clear avoids garbage on the newly exposed pixels */
+    ctx2d.fillStyle = rgb(this.bg);
+    ctx2d.fillRect(0, 0, w, h);
+  },
+
+  buildGrain() {
+    const s = 256;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    const img = g.createImageData(s, s);
+    const r = makeRng(5150);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = (r() * 255) | 0;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+      img.data[i + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    this.grainPattern = ctx2d.createPattern(c, 'repeat');
+    this.GRAIN_TILE = s;
+  }
+};
+
+function styleOf(P) {
+  return {
+    spin: P.spin, ringAmp: P.ringAmp, ringRadius: P.ringRadius,
+    auroraScale: P.auroraScale, auroraSpeed: P.auroraSpeed, auroraLevel: P.auroraLevel,
+    shock: P.shock, zoom: P.zoom, trail: P.trail,
+    particleCap: P.particleCap, grain: P.grain, hueSpread: P.hueSpread
+  };
+}
+
+const rgb  = c => 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')';
+const rgba = (c, a) => 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + a + ')';
+const hsla = (h, s, l, a) => 'hsla(' + h.toFixed(1) + ',' + s.toFixed(1) + '%,' + l.toFixed(1) + '%,' + a + ')';
+
+/* Pitch class -> hue along the circle of fifths, so notes that belong
+   together harmonically also sit near each other in colour. The spread is
+   deliberately narrow: sweeping the full wheel gives every preset the same
+   generic rainbow, whereas a band around the preset's own accent keeps the
+   palette intact while still letting you see the pitch. */
+function pcHue(pc, base, spread) {
+  const s = spread === undefined ? Visual.p.hueSpread : spread;
+  return (360 + base + (((pc * 7) % 12) / 12 - 0.5) * s) % 360;
+}
+
+/* ---- particles ---------------------------------------------------- */
+
+function spawnParticle(x, y, vx, vy, life, size, hue, sat, light, mode) {
+  const V = Visual;
+  if (V.particles.length >= V.p.particleCap * V.qScale) {
+    /* recycle the oldest rather than growing without bound */
+    V.particles.shift();
+  }
+  V.particles.push({
+    x, y, vx, vy, life, maxLife: life, size, hue, sat, light, mode,
+    seed: rand(1000), a0: Math.atan2(y - V.cy, x - V.cx),
+    r0: Math.hypot(x - V.cx, y - V.cy)
+  });
+}
+
+function burst(ev) {
+  const V = Visual, P = V.p;
+  const style = PRESETS[State.presetKey].style;
+  const d = ev.data;
+  const hue = pcHue(d.pc, V.hueBase);
+  const n = Math.round(lerp(4, 16, d.vel) * (style === 'nova' ? 1.5 : 1));
+  const R = V.unit * P.ringRadius;
+
+  /* higher notes start further out — pitch becomes radius */
+  const radius = R * lerp(0.62, 1.6, d.norm);
+  /* Orbit scatters around the whole ring so it reads as a steady field;
+     the other two keep the stereo position of the note, which lands the
+     light on the same side of the screen as the sound. */
+  const baseAngle = style === 'orbit'
+    ? rand(TAU)
+    : d.pan * 1.1 - Math.PI / 2 + rand(0.5, -0.5);
+  const spread = style === 'orbit' ? 2.4 : 0.9;
+
+  for (let i = 0; i < n; i++) {
+    const ang = baseAngle + rand(spread, -spread);
+    const rr = radius * rand(1.12, 0.88);
+    const x = V.cx + Math.cos(ang) * rr;
+    const y = V.cy + Math.sin(ang) * rr;
+
+    let vx, vy;
+    if (style === 'nova') {
+      const sp = V.unit * rand(0.0016, 0.0006) * (0.5 + d.vel);
+      vx = Math.cos(ang) * sp * 60;
+      vy = Math.sin(ang) * sp * 60;
+    } else if (style === 'orbit') {
+      const sp = V.unit * 0.00035;
+      vx = -Math.sin(ang) * sp * 60;
+      vy =  Math.cos(ang) * sp * 60;
+    } else {
+      vx = rand(0.22, -0.22) * V.unit * 0.004;
+      vy = -rand(0.5, 0.05) * V.unit * 0.004;
+    }
+
+    spawnParticle(
+      x, y, vx, vy,
+      lerp(1.6, 5.2, d.vel) * rand(1.3, 0.7),
+      lerp(0.9, 2.6, d.vel) * rand(1.4, 0.6) * (V.unit / 900),
+      hue + rand(16, -16),
+      lerp(62, 92, d.vel),
+      lerp(46, 64, d.vel),
+      style
+    );
+  }
+
+  /* a ring for the note itself — thin and quick */
+  Visual.rings.push({
+    r: radius * 0.5, vr: V.unit * 0.0035 * (0.6 + d.vel),
+    life: 1, decay: 0.9, hue, width: 1 + d.vel, alpha: 0.2 * d.vel
+  });
+}
+
+function shockwave(power, hue) {
+  const V = Visual;
+  V.rings.push({
+    r: V.unit * 0.04, vr: V.unit * 0.006 * (0.6 + power),
+    life: 1, decay: 0.34, hue, width: 2.2 + power * 2.6,
+    alpha: 0.5 * power * V.p.shock
+  });
+  V.flash = Math.min(1, V.flash + 0.38 * power * V.p.shock);
+}
+
+/* ---- the frame ---------------------------------------------------- */
+
+let lastFrame = performance.now();
+let uiIdleTimer = 0;
+
+function frame(now) {
+  requestAnimationFrame(frame);
+
+  const dtRaw = (now - lastFrame) / 1000;
+  lastFrame = now;
+  /* a hidden tab or a stalled frame must not teleport the animation */
+  const dt = clamp(dtRaw, 0, 0.05);
+
+  const V = Visual;
+  V.frameMs = lerp(V.frameMs, clamp(dtRaw * 1000, 0, 200), 0.05);
+  V.time += dt;
+  adaptQuality(dt);
+
+  /* ---- ease all style + palette values toward their targets ---- */
+  const k = 1 - Math.pow(0.001, dt);
+  for (const key in V.pT) V.p[key] = lerp(V.p[key], V.pT[key], k * 0.6);
+  for (let i = 0; i < 3; i++) V.bg[i] = lerp(V.bg[i], V.bgT[i], k * 0.6);
+  for (let i = 0; i < V.accents.length; i++)
+    for (let j = 0; j < 3; j++)
+      V.accents[i][j] = lerp(V.accents[i][j], V.accentsT[i][j], k * 0.6);
+  V.hueBase = V.accents[0][0];
+
+  /* ---- drain the note queue at its scheduled time ---- */
+  if (Audio.ready) {
+    const t = Audio.ctx.currentTime;
+    while (Audio.events.length && Audio.events[0].time <= t) {
+      const ev = Audio.events.shift();
+      handleEvent(ev);
+    }
+  }
+
+  /* ---- analyse ---- */
+  let level = 0, bassLevel = 0;
+  if (Audio.ready) {
+    Audio.analyser.getByteFrequencyData(Audio.freqData);
+    const d = Audio.freqData;
+    const N = V.SPEC_N;
+    const scratch = V.specScratch;
+    const usable = (d.length * 0.42) | 0;   /* the top octaves are empty */
+    for (let i = 0; i < N; i++) {
+      /* logarithmic bin mapping so low notes are not crammed together */
+      const f0 = Math.pow(i / N, 1.85) * usable;
+      const f1 = Math.pow((i + 1) / N, 1.85) * usable;
+      let sum = 0, cnt = 0;
+      for (let j = f0 | 0; j <= Math.min(usable - 1, Math.max(f0 | 0, f1 | 0)); j++) { sum += d[j]; cnt++; }
+      const v = cnt ? (sum / cnt) / 255 : 0;
+      scratch[i] = v;
+      level += v;
+      if (i < N * 0.16) bassLevel += v;
+    }
+    level /= N;
+    bassLevel /= (N * 0.16);
+
+    /* A raw FFT read around a circle looks like a saw blade. Blur it
+       across neighbouring bins before it ever reaches the geometry —
+       this is the difference between "spiky" and "breathing". */
+    for (let i = 0; i < N; i++) {
+      const a = scratch[i > 1 ? i - 2 : 0];
+      const b = scratch[i > 0 ? i - 1 : 0];
+      const c = scratch[i];
+      const e = scratch[i < N - 1 ? i + 1 : N - 1];
+      const f = scratch[i < N - 2 ? i + 2 : N - 1];
+      const sm = (a + 2 * b + 3 * c + 2 * e + f) / 9;
+      V.spectrum[i] = lerp(V.spectrum[i], sm, 0.16);
+    }
+  }
+  V.energy = lerp(V.energy, level, 0.09);
+  V.bassEnergy = lerp(V.bassEnergy, bassLevel, 0.14);
+  V.flash *= Math.pow(0.02, dt);
+  V.spin += dt * V.p.spin * (0.6 + V.energy * 1.6);
+  V.zoomPhase += dt * 0.24;
+
+  /* ---- draw ---- */
+  const w = V.w, h = V.h;
+
+  /* 1. transient buffer: decay what is already there, then add this
+        frame's ripples, ring and particles on top */
+  tctx.globalCompositeOperation = 'destination-out';
+  tctx.fillStyle = 'rgba(0,0,0,' + clamp(V.p.trail, 0.015, 0.4) + ')';
+  tctx.fillRect(0, 0, w, h);
+
+  tctx.globalCompositeOperation = 'lighter';
+  drawSpectrum(tctx);
+  drawParticles(tctx, dt);
+
+  /* 2. main canvas, rebuilt from nothing every frame */
+  ctx2d.globalCompositeOperation = 'source-over';
+  ctx2d.fillStyle = rgb(V.bg);
+  ctx2d.fillRect(0, 0, w, h);
+
+  drawAurora(ctx2d);
+
+  const zoom = 1 + Math.sin(V.zoomPhase) * V.p.zoom * (0.5 + V.energy) + V.flash * 0.018;
+  ctx2d.globalCompositeOperation = 'lighter';
+  ctx2d.save();
+  ctx2d.translate(V.cx, V.cy);
+  ctx2d.scale(zoom, zoom);
+  ctx2d.translate(-V.cx, -V.cy);
+  ctx2d.drawImage(trailCanvas, 0, 0, w, h);
+  ctx2d.restore();
+
+  /* Ripples are painted fresh rather than smeared. Their radius moves
+     steadily, so leaving them in the trail buffer stacks one faded copy
+     per frame into a set of grooves; drawn straight to the canvas each is
+     a single clean expanding circle. */
+  drawRings(ctx2d, dt);
+  drawStyleOverlay(ctx2d);
+  drawCore(ctx2d);
+
+  ctx2d.globalCompositeOperation = 'source-over';
+  drawVignette();
+  if (V.quality >= 1 && V.p.grain > 0.001) drawGrain();
+
+  updateReadout();
+}
+
+function handleEvent(ev) {
+  const V = Visual;
+  switch (ev.type) {
+    case 'bell':
+      burst(ev);
+      break;
+    case 'bass':
+      shockwave(ev.data.power, pcHue(ev.data.pc, V.hueBase));
+      break;
+    case 'pulse':
+      shockwave(ev.data.power * 0.55, pcHue(V.chordPcs[0] || 0, V.hueBase));
+      break;
+    case 'chord':
+      V.chordPcs = ev.data.pcs;
+      V.chordName = ev.data.name;
+      /* nudge the palette so each chord recolours the scene slightly */
+      V.chordHue = pcHue(ev.data.root, V.hueBase);
+      break;
+    case 'air':
+      V.flash = Math.min(1, V.flash + 0.1);
+      break;
+    case 'drift':
+      V.keyName = ev.data.key;
+      break;
+  }
+}
+
+/* Slow drifting nebula, built from a handful of large radial gradients
+   whose positions are driven by value noise. Repainted each frame, so it
+   can carry real alpha without ever building up. */
+function drawAurora(c) {
+  const V = Visual, P = V.p;
+  const n = V.quality >= 2 ? 5 : 3;
+  const t = V.time * P.auroraSpeed;
+  const R = V.unit * 0.62 * P.auroraScale;
+  const style = PRESETS[State.presetKey].style;
+
+  c.globalCompositeOperation = 'lighter';
+
+  /* Calm gets slow horizontal light bands under the nebula — the reason
+     it reads as tide rather than as another radial bloom. */
+  if (style === 'tide') {
+    for (let i = 0; i < 3; i++) {
+      const y = V.cy + noiseB(t * 0.5 + i * 5.1) * V.h * 0.45;
+      const bh = V.h * (0.16 + 0.1 * i);
+      const acc = V.accents[(i + 1) % V.accents.length];
+      const a = (0.05 + V.energy * 0.07) * P.auroraLevel;
+      const g = c.createLinearGradient(0, y - bh, 0, y + bh);
+      g.addColorStop(0, hsla(acc[0], acc[1], 40, 0));
+      g.addColorStop(0.5, hsla(acc[0], acc[1], 46, a));
+      g.addColorStop(1, hsla(acc[0], acc[1], 40, 0));
+      c.fillStyle = g;
+      c.fillRect(0, y - bh, V.w, bh * 2);
+    }
+  }
+
+  for (let i = 0; i < n; i++) {
+    const ph = i * 3.77;
+    const x = V.cx + noiseA(t * (0.7 + i * 0.13) + ph) * V.w * 0.42;
+    const y = V.cy + noiseB(t * (0.55 + i * 0.17) + ph * 1.3) * V.h * 0.42;
+    const acc = V.accents[i % V.accents.length];
+    const hue = (acc[0] + (V.chordHue !== undefined ? (V.chordHue - acc[0]) * 0.25 : 0) + i * 9) % 360;
+    const r = R * (0.55 + 0.45 * (0.5 + 0.5 * Math.sin(t * 2.1 + ph)));
+    const a = P.auroraLevel * (0.10 + V.energy * 0.22 + V.flash * 0.06);
+
+    const g = c.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, hsla(hue, acc[1], acc[2] * 0.5, a));
+    g.addColorStop(0.45, hsla(hue, acc[1], acc[2] * 0.3, a * 0.4));
+    g.addColorStop(1, hsla(hue, acc[1], acc[2] * 0.2, 0));
+    c.fillStyle = g;
+    c.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+}
+
+/* Lay out one closed ring into the scratch buffers, then trace it as a
+   quadratic spline through the midpoints of consecutive control points.
+   Curving between the points rather than joining them with straight
+   segments is what turns the FFT into something worth staring at. */
+function ringPath(c, scale, phase) {
+  const V = Visual, P = V.p;
+  const half = V.SPEC_N >> 1;
+  /* The ring is smeared into the trail buffer, so anything that moves the
+     WHOLE radius quickly paints a nested copy of the outline on every
+     transient — which stacks up into concentric contour rings. Per-angle
+     deformation is fine (it flows tangentially and smears nicely); global
+     radial pumping is not, so `flash` is deliberately kept out of this and
+     the energy term is small and heavily smoothed. */
+  const R = V.unit * P.ringRadius * (1 + V.energy * 0.05);
+  const amp = V.unit * 0.5 * P.ringAmp;
+  const px = V.ringX, py = V.ringY, n = RING_PTS;
+
+  for (let i = 0; i < n; i++) {
+    const u = i / n;
+    const a = u * TAU + V.spin * phase - Math.PI / 2;
+    /* fold the index so the shape is symmetric about the vertical axis */
+    const fold = u < 0.5 ? u * 2 : (1 - u) * 2;
+    const fi = fold * (half - 1);
+    const i0 = fi | 0, i1 = Math.min(half - 1, i0 + 1);
+    const v = lerp(V.spectrum[i0], V.spectrum[i1], fi - i0);
+    const wob = noiseA(V.time * 0.3 + u * 9) * 0.035;
+    const r = (R + v * amp + wob * V.unit) * scale;
+    px[i] = V.cx + Math.cos(a) * r;
+    py[i] = V.cy + Math.sin(a) * r;
+  }
+
+  c.beginPath();
+  c.moveTo((px[n - 1] + px[0]) / 2, (py[n - 1] + py[0]) / 2);
+  for (let i = 0; i < n; i++) {
+    const j = i + 1 === n ? 0 : i + 1;
+    c.quadraticCurveTo(px[i], py[i], (px[i] + px[j]) / 2, (py[i] + py[j]) / 2);
+  }
+  c.closePath();
+}
+
+function drawSpectrum(c) {
+  const V = Visual;
+  const acc = V.accents[0];
+  const glow = 0.14 + V.energy * 0.34 + V.flash * 0.16;
+  const lw = V.unit / 900;
+
+  /* the ring proper, plus two dimmer concentric echoes */
+  const layers = V.quality >= 2 ? [1, 1.46, 1.92] : [1, 1.46];
+  for (let li = 0; li < layers.length; li++) {
+    const a = glow * (li === 0 ? 1 : 0.26);
+    if (a < 0.005) continue;
+    ringPath(c, layers[li], 1 + li * 0.45);
+    c.strokeStyle = hsla((acc[0] + li * 22) % 360, acc[1], lerp(52, 70, V.energy), clamp(a, 0, 0.8));
+    c.lineWidth = (li === 0 ? 1.5 : 0.85) * lw;
+    c.stroke();
+  }
+}
+
+/* Per-preset furniture, painted fresh on the main canvas so none of it
+   can accumulate: Focus gets a clock face, Epic gets a horizon arc. */
+function drawStyleOverlay(c) {
+  const V = Visual, P = V.p;
+  const style = PRESETS[State.presetKey].style;
+  const half = V.SPEC_N >> 1;
+  const R = V.unit * P.ringRadius;
+  const acc2 = V.accents[1];
+
+  if (style === 'orbit') {
+    const ticks = 60;
+    c.lineWidth = 1 * (V.unit / 900);
+    for (let i = 0; i < ticks; i++) {
+      const u = i / ticks;
+      const a = u * TAU + V.spin * 0.4;
+      const fi = (u < 0.5 ? u * 2 : (1 - u) * 2) * (half - 1);
+      const v = V.spectrum[fi | 0];
+      const r0 = R * 1.78;
+      const r1 = r0 + v * V.unit * 0.05 + V.unit * 0.004;
+      c.beginPath();
+      c.moveTo(V.cx + Math.cos(a) * r0, V.cy + Math.sin(a) * r0);
+      c.lineTo(V.cx + Math.cos(a) * r1, V.cy + Math.sin(a) * r1);
+      c.strokeStyle = hsla(acc2[0], acc2[1], 60, 0.08 + v * 0.35);
+      c.stroke();
+    }
+    /* two hairline guide circles to anchor the eye */
+    for (const m of [1.78, 0.52]) {
+      c.beginPath();
+      c.arc(V.cx, V.cy, R * m, 0, TAU);
+      c.strokeStyle = hsla(acc2[0], acc2[1], 60, 0.07);
+      c.lineWidth = 1 * (V.unit / 900);
+      c.stroke();
+    }
+  }
+
+  if (style === 'nova') {
+    /* a wide, faint arc low in the frame reads as a horizon and gives
+       the radial motion something to be big against */
+    const y = V.cy + V.unit * 0.52;
+    const r = V.unit * 0.85;
+    const g = c.createLinearGradient(0, y - r * 0.35, 0, y);
+    g.addColorStop(0, hsla(V.accents[2][0], 70, 55, 0));
+    g.addColorStop(1, hsla(V.accents[2][0], 70, 55, 0.10 + V.energy * 0.16));
+    c.strokeStyle = g;
+    c.lineWidth = V.unit * 0.006;
+    c.beginPath();
+    c.arc(V.cx, y, r, Math.PI * 1.15, Math.PI * 1.85);
+    c.stroke();
+  }
+}
+
+/* The still point at the centre. Small, and deliberately not additive
+   over its own history — it is redrawn from scratch every frame. */
+function drawCore(c) {
+  const V = Visual;
+  const acc = V.accents[0];
+  const hue = V.chordHue !== undefined ? V.chordHue : acc[0];
+  const r = V.unit * (0.010 + V.energy * 0.016 + V.flash * 0.010);
+  const R = r * 5;
+
+  const g = c.createRadialGradient(V.cx, V.cy, 0, V.cx, V.cy, R);
+  g.addColorStop(0, hsla(hue, 45, 86, 0.34 + V.flash * 0.24));
+  g.addColorStop(0.3, hsla(hue, acc[1], 62, 0.075));
+  g.addColorStop(1, hsla(acc[0], acc[1], 52, 0));
+  c.fillStyle = g;
+  c.beginPath();
+  c.arc(V.cx, V.cy, R, 0, TAU);
+  c.fill();
+}
+
+function drawRings(c, dt) {
+  const V = Visual;
+  for (let i = V.rings.length - 1; i >= 0; i--) {
+    const r = V.rings[i];
+    r.r += r.vr * dt * 60;
+    r.life -= r.decay * dt;
+    if (r.life <= 0 || r.r > V.unit * 1.4) { V.rings.splice(i, 1); continue; }
+    const a = r.alpha * r.life * r.life;
+    if (a < 0.004) continue;
+    c.beginPath();
+    c.arc(V.cx, V.cy, r.r, 0, TAU);
+    c.strokeStyle = hsla(r.hue, 62, 62, a);
+    c.lineWidth = r.width * r.life * (V.unit / 900);
+    c.stroke();
+  }
+}
+
+function drawParticles(c, dt) {
+  const V = Visual;
+  const drag = Math.pow(0.55, dt);
+  const scale = V.unit / 900;
+
+  for (let i = V.particles.length - 1; i >= 0; i--) {
+    const p = V.particles[i];
+    p.life -= dt;
+    if (p.life <= 0) { V.particles.splice(i, 1); continue; }
+
+    if (p.mode === 'orbit') {
+      /* hold station on a ring and rotate — very stable, low distraction */
+      const a = p.a0 + (p.maxLife - p.life) * 0.22 * (1 + V.energy);
+      const r = p.r0 + Math.sin(V.time * 0.7 + p.seed) * V.unit * 0.012;
+      p.x = V.cx + Math.cos(a) * r;
+      p.y = V.cy + Math.sin(a) * r;
+    } else if (p.mode === 'nova') {
+      p.vx *= drag; p.vy *= drag;
+      p.x += p.vx * dt * 60;
+      p.y += p.vy * dt * 60;
+    } else {
+      /* 'tide' — slow upward drift with a lateral noise current */
+      p.vx += noiseA(V.time * 0.4 + p.seed) * 0.06 * scale;
+      p.vy -= 0.012 * scale;
+      p.vx *= 0.995; p.vy *= 0.995;
+      p.x += p.vx * dt * 60;
+      p.y += p.vy * dt * 60;
+    }
+
+    const t = p.life / p.maxLife;
+    const a = smoothstep(clamp(t, 0, 1)) * 0.62;
+    const rad = p.size * (0.4 + t * 0.9) * scale * 2.6;
+
+    if (V.quality >= 1) {
+      const g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad * 3.2);
+      g.addColorStop(0, hsla(p.hue, p.sat, p.light, a));
+      g.addColorStop(0.35, hsla(p.hue, p.sat, p.light * 0.8, a * 0.24));
+      g.addColorStop(1, hsla(p.hue, p.sat, p.light * 0.6, 0));
+      c.fillStyle = g;
+      c.beginPath();
+      c.arc(p.x, p.y, rad * 3.2, 0, TAU);
+      c.fill();
+    } else {
+      c.fillStyle = hsla(p.hue, p.sat, p.light, a * 0.7);
+      c.beginPath();
+      c.arc(p.x, p.y, rad, 0, TAU);
+      c.fill();
+    }
+  }
+}
+
+/* A wide, dark radial ramp is the one thing here that reliably posterises:
+   over a near-black field the alpha sweep crosses only a couple of dozen
+   8-bit levels, and each crossing shows up as a concentric contour. Two
+   cheap mitigations, on top of the grain: keep the amplitude low (the
+   number of contours is proportional to it) and jitter the radii a little
+   every frame, so a contour that does survive drifts by a pixel or two
+   instead of sitting still where the eye can lock onto it. */
+function drawVignette() {
+  const V = Visual;
+  const j = V.unit * 0.004;
+  const r0 = V.unit * 0.26 + rand(j, -j);
+  const r1 = V.unit * 0.92 + rand(j, -j);
+  const g = ctx2d.createRadialGradient(V.cx, V.cy, r0, V.cx, V.cy, r1);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(0.55, 'rgba(0,0,0,0.12)');
+  g.addColorStop(1, 'rgba(0,0,0,0.34)');
+  ctx2d.fillStyle = g;
+  ctx2d.fillRect(0, 0, V.w, V.h);
+}
+
+/* Additive film grain, which doubles as a dither. Wide, soft radial
+   gradients over a near-black background posterise into visible contour
+   rings on an 8-bit display; a couple of levels of per-pixel noise on top
+   breaks the contours up completely. It is drawn last so it dithers the
+   vignette and the core glow as well as the nebula. */
+function drawGrain() {
+  const V = Visual;
+  if (!V.grainPattern) return;
+  const tile = V.GRAIN_TILE || 256;
+  ctx2d.save();
+  ctx2d.globalCompositeOperation = 'lighter';
+  ctx2d.globalAlpha = V.p.grain;
+  ctx2d.translate(-((rng() * tile) | 0), -((rng() * tile) | 0));
+  ctx2d.fillStyle = V.grainPattern;
+  ctx2d.fillRect(0, 0, V.w + tile, V.h + tile);
+  ctx2d.restore();
+}
+
+/* If frames get expensive — a big display, a weak GPU, a laptop that has
+   throttled — shed work rather than stuttering. The warm-up delay and the
+   cooldown matter: without them the first slow frame of the session (page
+   load, shader compile) drops quality permanently, and the thresholds have
+   to straddle a normal 60 Hz frame at 16.7 ms or it can never climb back. */
+let qCooldown = 0;
+
+function adaptQuality(dt) {
+  const V = Visual;
+  if (V.time < 3) return;
+  qCooldown -= dt;
+  if (qCooldown > 0) return;
+
+  if (V.frameMs > 32 && V.quality > 0) {
+    V.quality--;
+    V.qScale = Math.max(0.25, V.qScale * 0.6);
+    qCooldown = 5;
+  } else if (V.frameMs < 21 && V.quality < 2) {
+    V.quality++;
+    V.qScale = Math.min(1, V.qScale / 0.6);
+    qCooldown = 8;
+  }
+}
+
+
+/* ------------------------------------------------------------------ *
+ * 4. interface
+ * ------------------------------------------------------------------ */
+
+const State = { presetKey: 'calm', volume: 0.72, uiHidden: false };
+
+const el = {
+  gate:    document.getElementById('gate'),
+  chrome:  document.getElementById('chrome'),
+  toast:   document.getElementById('toast'),
+  vol:     document.getElementById('vol'),
+  rPreset: document.getElementById('rPreset'),
+  rKey:    document.getElementById('rKey'),
+  rChord:  document.getElementById('rChord'),
+  rTime:   document.getElementById('rTime'),
+  pathPlay:  document.getElementById('pathPlay'),
+  pathPause: document.getElementById('pathPause')
+};
+const chips = {
+  calm:  document.getElementById('pCalm'),
+  focus: document.getElementById('pFocus'),
+  epic:  document.getElementById('pEpic')
+};
+
+function save() {
+  try {
+    localStorage.setItem('slowradio', JSON.stringify({
+      preset: State.presetKey, volume: State.volume
+    }));
+  } catch (e) {}
+}
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem('slowradio') || '{}');
+    if (s.preset && PRESETS[s.preset]) State.presetKey = s.preset;
+    if (typeof s.volume === 'number') State.volume = clamp(s.volume, 0, 1);
+  } catch (e) {}
+}
+
+function syncChips() {
+  for (const k in chips) chips[k].setAttribute('aria-pressed', String(k === State.presetKey));
+}
+function syncPlayIcon() {
+  const playing = Audio.running;
+  el.pathPause.style.display = playing ? '' : 'none';
+  el.pathPlay.style.display  = playing ? 'none' : '';
+}
+
+let toastTimer = 0;
+function toast(msg) {
+  el.toast.textContent = msg;
+  el.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.toast.classList.remove('show'), 1150);
+}
+
+function updateReadout() {
+  const V = Visual;
+  el.rPreset.textContent = PRESETS[State.presetKey].label;
+  el.rChord.textContent = V.chordName;
+  el.rKey.textContent = Audio.ready
+    ? noteName(currentKeyRoot()) + (PRESETS[State.presetKey].scale.includes(3) ? ' minor' : ' major')
+    : '—';
+  if (Audio.startedAt) {
+    const s = ((Date.now() - Audio.startedAt) / 1000) | 0;
+    const hh = (s / 3600) | 0, mm = ((s % 3600) / 60) | 0, ss = s % 60;
+    el.rTime.textContent = (hh ? hh + ':' + String(mm).padStart(2, '0') : mm) + ':' + String(ss).padStart(2, '0');
+  }
+}
+
+/* ---- ui auto-hide: the point is to leave this running ---- */
+function wakeUI() {
+  if (State.uiHidden) return;
+  el.chrome.classList.remove('hidden');
+  document.body.style.cursor = '';
+  clearTimeout(uiIdleTimer);
+  uiIdleTimer = setTimeout(() => {
+    el.chrome.classList.add('hidden');
+    document.body.style.cursor = 'none';
+  }, 3200);
+}
+
+/* ---- wiring ---- */
+
+function begin() {
+  if (!el.gate.classList.contains('gone')) {
+    el.gate.classList.add('gone');
+    setTimeout(() => { el.gate.style.display = 'none'; }, 1200);
+  }
+  play();
+  wakeUI();
+}
+
+el.gate.addEventListener('click', begin);
+el.gate.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') begin(); });
+
+for (const k in chips) {
+  chips[k].addEventListener('click', () => {
+    setPreset(k);
+    if (!Audio.running) begin();
+    toast(PRESETS[k].label);
+  });
+}
+
+document.getElementById('bPlay').addEventListener('click', () => {
+  if (Audio.running) { pause(); toast('paused'); }
+  else { begin(); toast('playing'); }
+});
+
+document.getElementById('bFull').addEventListener('click', toggleFullscreen);
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)
+      ?.call(document.documentElement).catch(() => {});
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+}
+
+el.vol.addEventListener('input', () => setVolume(el.vol.value / 100));
+
+window.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' && e.key !== 'Escape') {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') return;
+  }
+  switch (e.key) {
+    case '1': case '2': case '3': {
+      const k = PRESET_ORDER[+e.key - 1];
+      setPreset(k);
+      if (!Audio.running) begin();
+      toast(PRESETS[k].label);
+      break;
+    }
+    case ' ':
+      e.preventDefault();
+      if (Audio.running) { pause(); toast('paused'); } else { begin(); toast('playing'); }
+      break;
+    case 'f': case 'F':
+      toggleFullscreen();
+      break;
+    case 'h': case 'H':
+      State.uiHidden = !State.uiHidden;
+      if (State.uiHidden) {
+        el.chrome.classList.add('hidden');
+        document.body.style.cursor = 'none';
+      } else {
+        wakeUI();
+      }
+      toast(State.uiHidden ? 'ui hidden' : 'ui shown');
+      break;
+    case 'ArrowUp':
+      e.preventDefault();
+      setVolume(State.volume + 0.05); el.vol.value = Math.round(State.volume * 100);
+      toast('vol ' + Math.round(State.volume * 100)); wakeUI();
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      setVolume(State.volume - 0.05); el.vol.value = Math.round(State.volume * 100);
+      toast('vol ' + Math.round(State.volume * 100)); wakeUI();
+      break;
+  }
+  if (!State.uiHidden) wakeUI();
+});
+
+window.addEventListener('mousemove', wakeUI, { passive: true });
+window.addEventListener('touchstart', wakeUI, { passive: true });
+window.addEventListener('resize', () => Visual.resize());
+
+/* Coming back from a frozen/backgrounded tab: resync the transport so it
+   does not try to render a minute of missed notes at once. */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Audio.running) {
+    const t = Audio.ctx.currentTime;
+    if (Audio.nextStepTime < t) Audio.nextStepTime = t + 0.1;
+    Audio.events.length = 0;
+    lastFrame = performance.now();
+  }
+});
+
+/* ---- boot ---- */
+
+load();
+el.vol.value = Math.round(State.volume * 100);
+syncChips();
+syncPlayIcon();
+Visual.init();
+requestAnimationFrame(now => { lastFrame = now; frame(now); });
+
+/* expose a tiny surface for debugging / automated checks */
+window.SlowRadio = { Audio, Visual, State, PRESETS, setPreset, play, pause };
+</script>
+</body>
+</html>
