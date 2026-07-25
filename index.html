@@ -12,6 +12,13 @@
 <meta property="og:title" content="Malik Palamar — Consciousness Technologies">
 <meta property="og:description" content="Symbiotic AI: intelligence dedicated to your growth that evolves with you.">
 
+<script>
+/* Runs before first paint. Every hidden-until-revealed state in the
+   stylesheet is scoped to .js, so a page without JavaScript renders
+   fully visible instead of blank. */
+document.documentElement.className += " js";
+</script>
+
 <style>
 /* ============================================================
    MALIK PALAMAR — personal brand site
@@ -682,24 +689,29 @@ footer{
 
 /* ============================================================
    MOTION — reveals on scroll. Transform + opacity only.
+
+   Every hidden starting state is scoped to .js, set by an inline
+   script in the head. Without JavaScript — disabled, blocked by a
+   host CSP, or failed before setup — the page renders fully visible
+   rather than blank.
    ============================================================ */
-[data-reveal]{
+.js [data-reveal]{
   opacity:0;
   transform:translateY(26px);
   transition:opacity 1.05s var(--ease),transform 1.05s var(--ease);
   transition-delay:var(--d,0ms);
 }
-[data-reveal].in{opacity:1;transform:none}
+.js [data-reveal].in{opacity:1;transform:none}
 
 /* masked line-by-line reveal for display headings */
 .line{overflow:hidden;padding-bottom:.1em;margin-bottom:-.1em}
-.line>span{
-  display:block;
+.line>span{display:block} /* holds the hand-set breaks with or without JS */
+.js .line>span{
   transform:translateY(105%);
   transition:transform 1.2s var(--ease);
   transition-delay:var(--d,0ms);
 }
-.in .line>span,.line.in>span{transform:none}
+.js .in .line>span,.js .line.in>span{transform:none}
 
 /* pointer-tracked halo — futuristic, but very quiet */
 .halo{
@@ -723,8 +735,8 @@ footer{
     animation-iteration-count:1!important;
     transition-duration:.001ms!important;
   }
-  [data-reveal]{opacity:1;transform:none}
-  .line>span{transform:none}
+  .js [data-reveal]{opacity:1;transform:none}
+  .js .line>span{transform:none}
   .halo{display:none}
   .progress{display:none}
 }
