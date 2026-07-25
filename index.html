@@ -5,14 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>document.documentElement.classList.add('js');</script>
 <title>Malik Palamar — Consciousness Technologies &amp; Symbiotic AI</title>
-<meta name="description" content="Malik Palamar is a pioneer in consciousness technologies, building symbiotic AI dedicated to your growth — intelligence that evolves with you.">
+<meta name="description" content="Malik Palamar builds symbiotic AI dedicated to your growth — intelligence that evolves with you.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0b0a08;
-    --bg-raised: #12100d;
     --ink: #ece7dd;
     --ink-dim: #a39c8e;
     --ink-faint: #6b6558;
@@ -32,7 +31,7 @@
     color: var(--ink);
     font-family: var(--sans);
     font-size: 1.0625rem;
-    line-height: 1.65;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
@@ -41,7 +40,7 @@
 
   a { color: inherit; text-decoration: none; }
 
-  /* ---- grain overlay ---- */
+  /* ---- grain ---- */
   body::after {
     content: "";
     position: fixed;
@@ -52,7 +51,6 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* ---- scroll progress ---- */
   #progress {
     position: fixed;
     top: 0; left: 0;
@@ -74,18 +72,13 @@
     padding: 1.4rem clamp(1.5rem, 5vw, 4rem);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    background: linear-gradient(to bottom, rgba(11,10,8,0.85), rgba(11,10,8,0.55));
+    background: linear-gradient(to bottom, rgba(11,10,8,0.85), rgba(11,10,8,0.4));
     border-bottom: 1px solid transparent;
     transition: border-color 0.4s var(--ease);
   }
   nav.scrolled { border-bottom-color: var(--hairline); }
 
-  .nav-mark {
-    font-family: var(--serif);
-    font-size: 1.15rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-  }
+  .nav-mark { font-family: var(--serif); font-size: 1.15rem; font-weight: 500; }
   .nav-mark span { color: var(--accent); }
 
   .nav-links {
@@ -105,14 +98,13 @@
     .nav-links a:not(.nav-cta) { display: none; }
   }
 
-  /* ---- layout ---- */
   .wrap {
     max-width: 1180px;
     margin: 0 auto;
     padding: 0 clamp(1.5rem, 5vw, 4rem);
   }
 
-  section { padding: clamp(6rem, 14vh, 11rem) 0; }
+  section { padding: clamp(6rem, 13vh, 10rem) 0; position: relative; }
 
   .kicker {
     display: flex;
@@ -123,293 +115,208 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--ink-faint);
-    margin-bottom: 3.5rem;
+    margin-bottom: 3rem;
   }
-  .kicker::before {
-    content: "";
-    width: 2.4rem;
-    height: 1px;
-    background: var(--accent);
-  }
-  .kicker em {
-    font-style: normal;
-    color: var(--accent);
-  }
+  .kicker::before { content: ""; width: 2.4rem; height: 1px; background: var(--accent); }
+  .kicker em { font-style: normal; color: var(--accent); }
 
   /* ---- hero ---- */
   header.hero {
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    height: 100svh;
+    min-height: 620px;
     position: relative;
-    padding-top: 6rem;
-    padding-bottom: 10rem;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
   }
-
-  .hero-lattice {
+  #berg {
     position: absolute;
     inset: 0;
-    overflow: hidden;
-    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    display: block;
   }
-  .hero-lattice svg {
-    position: absolute;
-    right: -12%;
-    top: 50%;
-    transform: translateY(-50%);
-    width: min(72vw, 900px);
-    opacity: 0.5;
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding-bottom: clamp(3rem, 9vh, 6rem);
   }
-
   .hero h1 {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(2.9rem, 8.2vw, 6.8rem);
-    line-height: 1.04;
-    letter-spacing: -0.015em;
-    max-width: 15ch;
-    position: relative;
-    z-index: 2;
+    font-size: clamp(3rem, 9.5vw, 8rem);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    max-width: 12ch;
+    text-wrap: balance;
   }
-  .hero h1 em {
-    font-style: italic;
-    font-weight: 300;
-    color: var(--accent);
-  }
-
+  .hero h1 em { font-style: italic; color: var(--accent); }
   .hero-sub {
-    margin-top: 2.6rem;
-    max-width: 44ch;
-    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
-    color: var(--ink-dim);
-    position: relative;
-    z-index: 2;
-  }
-
-  .hero-meta {
-    position: absolute;
-    bottom: 3rem;
-    left: 0; right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
+    margin-top: 1.6rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    color: var(--ink-dim);
   }
-  .hero-meta .scroll-cue {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-  }
-  .hero-meta .scroll-cue::after {
-    content: "";
-    display: block;
-    width: 1px;
-    height: 2.6rem;
-    background: linear-gradient(to bottom, var(--accent), transparent);
-    animation: cue 2.4s var(--ease) infinite;
-  }
-  @keyframes cue {
-    0%   { transform: scaleY(0); transform-origin: top; }
-    45%  { transform: scaleY(1); transform-origin: top; }
-    55%  { transform: scaleY(1); transform-origin: bottom; }
-    100% { transform: scaleY(0); transform-origin: bottom; }
-  }
+  .hero-sub b { color: var(--accent); font-weight: 600; }
 
-  /* ---- reveal-on-scroll (hidden state only when JS is running) ---- */
+  /* ---- reveal (JS only) ---- */
   .js .reveal {
     opacity: 0;
     transform: translateY(2.2rem);
     transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
     transition-delay: var(--d, 0s);
   }
-  .js .reveal.in {
-    opacity: 1;
-    transform: none;
-  }
+  .js .reveal.in { opacity: 1; transform: none; }
 
-  /* ---- who I am ---- */
-  .about-grid {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: clamp(3rem, 7vw, 7rem);
-    align-items: start;
-  }
-  @media (max-width: 860px) { .about-grid { grid-template-columns: 1fr; } }
-
-  .about-lede {
+  /* ---- who ---- */
+  .lede {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
-    line-height: 1.3;
+    font-size: clamp(1.9rem, 4.4vw, 3.6rem);
+    line-height: 1.22;
     letter-spacing: -0.01em;
+    max-width: 24ch;
+    text-wrap: balance;
   }
-  .about-lede em { font-style: italic; color: var(--accent); }
+  .lede em { font-style: italic; color: var(--accent); }
 
-  .about-body p {
-    color: var(--ink-dim);
-    margin-bottom: 1.4rem;
-  }
-  .about-body p strong { color: var(--ink); font-weight: 500; }
-
-  .about-principles {
-    margin-top: 2.8rem;
-    border-top: 1px solid var(--hairline);
-  }
-  .about-principles li {
-    list-style: none;
+  .principles {
+    margin-top: 3.5rem;
     display: flex;
-    gap: 1.4rem;
-    align-items: baseline;
-    padding: 1.1rem 0;
-    border-bottom: 1px solid var(--hairline);
-    font-size: 0.95rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .principles span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     color: var(--ink-dim);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.7rem 1.4rem;
+    transition: border-color 0.3s, color 0.3s;
   }
-  .about-principles li b {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-style: italic;
-    color: var(--accent);
-    font-size: 1rem;
-    min-width: 1.6rem;
-  }
+  .principles span:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* ---- case studies ---- */
-  .case {
-    border-top: 1px solid var(--hairline);
-    padding: clamp(3rem, 6vw, 5rem) 0;
+  /* ---- work cards ---- */
+  .cards {
     display: grid;
-    grid-template-columns: minmax(3.5rem, 8rem) 1fr minmax(180px, 260px);
-    gap: clamp(1.5rem, 4vw, 4rem);
-    align-items: start;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1rem, 2vw, 1.8rem);
   }
-  .case:last-of-type { border-bottom: 1px solid var(--hairline); }
-  @media (max-width: 860px) {
-    .case { grid-template-columns: 1fr; gap: 1.6rem; }
-  }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
 
-  .case-num {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 300;
-    font-size: clamp(1.6rem, 2.6vw, 2.2rem);
-    color: var(--ink-faint);
-    line-height: 1;
-    padding-top: 0.4rem;
+  .card {
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(236,231,221,0.02);
+    transition: border-color 0.4s var(--ease), transform 0.4s var(--ease);
   }
+  .card:hover { border-color: rgba(232,163,61,0.4); transform: translateY(-4px); }
 
-  .case h3 {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(1.7rem, 3.2vw, 2.6rem);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    margin-bottom: 0.5rem;
+  .card canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-bottom: 1px solid var(--hairline);
   }
-  .case .case-tag {
-    font-size: 0.72rem;
+  .card-body { padding: 1.6rem 1.6rem 1.8rem; }
+  .card-tag {
+    font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 1.4rem;
+    margin-bottom: 0.7rem;
   }
-  .case p {
-    color: var(--ink-dim);
-    max-width: 58ch;
+  .card h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.55rem;
+    line-height: 1.15;
+    margin-bottom: 0.7rem;
+    text-wrap: balance;
   }
-
-  .case-stats { display: grid; gap: 1.6rem; }
-  .case-stat .n {
+  .card p { color: var(--ink-dim); font-size: 0.95rem; max-width: 40ch; }
+  .card-stat {
+    margin-top: 1.4rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+  }
+  .card-stat .n {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(1.9rem, 3vw, 2.6rem);
-    line-height: 1.1;
-    color: var(--ink);
+    font-size: 2.1rem;
+    color: var(--accent);
   }
-  .case-stat .n span { color: var(--accent); }
-  .case-stat .l {
-    font-size: 0.78rem;
+  .card-stat .l {
+    font-size: 0.72rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink-faint);
-    margin-top: 0.3rem;
-  }
-  @media (max-width: 860px) {
-    .case-stats { grid-template-columns: repeat(3, auto); justify-content: start; gap: 2.5rem; }
   }
 
-  /* ---- testimonials ---- */
-  .quotes { display: grid; gap: clamp(4rem, 8vw, 6.5rem); }
+  /* ---- voices ---- */
+  .quotes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+  @media (max-width: 900px) { .quotes { grid-template-columns: 1fr; } }
 
   .quote blockquote {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(1.5rem, 3vw, 2.35rem);
-    line-height: 1.35;
-    letter-spacing: -0.01em;
-    max-width: 30ch;
-    text-indent: -0.45em;
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+    line-height: 1.3;
+    text-wrap: balance;
   }
-  .quote blockquote em { font-style: italic; color: var(--accent); }
+  .quote blockquote em { color: var(--accent); font-style: italic; }
   .quote figcaption {
-    margin-top: 1.6rem;
+    margin-top: 1.2rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    font-size: 0.82rem;
+    gap: 0.9rem;
+    font-size: 0.75rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ink-faint);
   }
-  .quote figcaption::before {
-    content: "";
-    width: 1.8rem;
-    height: 1px;
-    background: var(--accent);
-  }
-  .quote:nth-child(2) { justify-self: end; text-align: left; }
-  @media (max-width: 720px) { .quote:nth-child(2) { justify-self: start; } }
+  .quote figcaption::before { content: ""; width: 1.6rem; height: 1px; background: var(--accent); }
 
-  /* ---- work with me ---- */
+  /* ---- engage ---- */
   .engage {
     text-align: center;
-    padding: clamp(7rem, 16vh, 13rem) 0;
     position: relative;
+    overflow: hidden;
   }
-  .engage::before {
-    content: "";
+  #halo {
     position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: min(560px, 80vw);
+    inset: 0;
+    width: 100%;
     height: 100%;
-    background: radial-gradient(ellipse at 50% 40%, rgba(232,163,61,0.09), transparent 65%);
+    display: block;
     pointer-events: none;
   }
-  .engage .kicker { justify-content: center; }
-  .engage .kicker::before { display: none; }
-
+  .engage-inner { position: relative; z-index: 2; }
   .engage h2 {
     font-family: var(--serif);
     font-weight: 300;
-    font-size: clamp(2.4rem, 6vw, 4.8rem);
-    line-height: 1.08;
+    font-size: clamp(2.6rem, 6.5vw, 5.2rem);
+    line-height: 1.05;
     letter-spacing: -0.015em;
-    max-width: 18ch;
-    margin: 0 auto 1.8rem;
+    max-width: 16ch;
+    margin: 0 auto 1.4rem;
+    text-wrap: balance;
   }
   .engage h2 em { font-style: italic; color: var(--accent); }
-
-  .engage-sub {
-    color: var(--ink-dim);
-    max-width: 46ch;
-    margin: 0 auto 3.2rem;
-  }
+  .engage-sub { color: var(--ink-dim); max-width: 40ch; margin: 0 auto 3rem; }
 
   .btn {
     display: inline-flex;
@@ -433,34 +340,26 @@
   .btn:hover svg { transform: translateX(4px); }
 
   .engage-note {
-    margin-top: 1.8rem;
-    font-size: 0.8rem;
+    margin-top: 1.6rem;
+    font-size: 0.78rem;
     letter-spacing: 0.08em;
     color: var(--ink-faint);
   }
 
-  /* ---- footer ---- */
   footer {
     border-top: 1px solid var(--hairline);
     padding: 2.4rem 0 3rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
     font-size: 0.78rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink-faint);
   }
-  footer a { transition: color 0.25s; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
   footer a:hover { color: var(--accent); }
 
-  /* ---- reduced motion ---- */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .js .reveal { opacity: 1; transform: none; transition: none; }
-    .hero-meta .scroll-cue::after { animation: none; }
     * { transition-duration: 0.01ms !important; }
   }
 </style>
@@ -481,133 +380,96 @@
 
 <!-- ============ HERO ============ -->
 <header class="hero" id="top">
-  <div class="hero-lattice" aria-hidden="true">
-    <svg viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" id="lattice">
-      <g stroke="#ece7dd" stroke-opacity="0.08">
-        <path d="M60 460 L540 460"/><path d="M40 400 L560 400"/><path d="M60 340 L540 340"/>
-        <path d="M100 460 L160 340"/><path d="M200 460 L240 340"/><path d="M300 460 L300 340"/>
-        <path d="M400 460 L360 340"/><path d="M500 460 L440 340"/>
-      </g>
-      <!-- iceberg: tip above, mass below -->
-      <g>
-        <path d="M300 180 L390 400 L210 400 Z" stroke="#e8a33d" stroke-opacity="0.55" fill="rgba(232,163,61,0.04)"/>
-        <path d="M210 400 L390 400 L340 560 L250 560 Z" stroke="#ece7dd" stroke-opacity="0.22" fill="rgba(236,231,221,0.02)"/>
-        <path d="M120 400 L480 400" stroke="#e8a33d" stroke-opacity="0.35" stroke-dasharray="2 7"/>
-      </g>
-      <circle cx="300" cy="180" r="3.5" fill="#e8a33d"/>
-    </svg>
-  </div>
-
-  <div class="wrap">
-    <div class="kicker reveal">Consciousness Technologies · Symbiotic AI</div>
-    <h1 class="reveal" style="--d:0.1s">Intelligence that is <em>dedicated to your growth</em> — and evolves with you.</h1>
-    <p class="hero-sub reveal" style="--d:0.22s">I'm Malik Palamar. I build symbiotic AI — systems designed not to replace human depth, but to develop it. Most technology competes for your attention. Mine is accountable to your becoming.</p>
-  </div>
-
-  <div class="wrap hero-meta">
-    <span>Est. field: human development × machine intelligence</span>
-    <span class="scroll-cue">Scroll</span>
+  <canvas id="berg" aria-hidden="true"></canvas>
+  <div class="wrap hero-content">
+    <h1 class="reveal">Intelligence that <em>evolves</em> with you.</h1>
+    <p class="hero-sub reveal" style="--d:0.15s"><b>Malik Palamar</b> · Consciousness Technologies · Symbiotic AI</p>
   </div>
 </header>
 
 <main>
 
-<!-- ============ WHO I AM ============ -->
+<!-- ============ WHO ============ -->
 <section id="about">
   <div class="wrap">
     <div class="kicker reveal"><em>01</em> Who I Am</div>
-    <div class="about-grid">
-      <p class="about-lede reveal">Most AI is built to optimize what you do. I build AI that is accountable to <em>who you are becoming.</em></p>
-      <div class="about-body">
-        <p class="reveal" style="--d:0.1s">For over a decade I've worked at the intersection of developmental psychology, contemplative practice, and machine intelligence — a field I call <strong>consciousness technology</strong>. The premise is simple and unfashionable: technology should make humans deeper, not just faster.</p>
-        <p class="reveal" style="--d:0.18s">That premise became the <strong>4D Human Development Model</strong> — a framework that maps growth across the visible surface of behavior and the submerged mass beneath it — and a series of symbiotic AI systems built on top of it: companions that hold a longitudinal model of your development and evolve their guidance as you evolve.</p>
-        <ul class="about-principles">
-          <li class="reveal" style="--d:0.1s"><b>i.</b> Symbiosis over substitution — the human grows, or the system has failed.</li>
-          <li class="reveal" style="--d:0.16s"><b>ii.</b> Depth over engagement — no metric of mine rewards your distraction.</li>
-          <li class="reveal" style="--d:0.22s"><b>iii.</b> Evolution over deployment — a system that doesn't change with you isn't symbiotic. It's furniture.</li>
-        </ul>
-      </div>
+    <p class="lede reveal" style="--d:0.1s">Most AI optimizes what you do. Mine is accountable to <em>who you are becoming.</em></p>
+    <div class="principles">
+      <span class="reveal" style="--d:0.15s">Symbiosis over substitution</span>
+      <span class="reveal" style="--d:0.22s">Depth over engagement</span>
+      <span class="reveal" style="--d:0.29s">Evolution over deployment</span>
     </div>
   </div>
 </section>
 
-<!-- ============ WHAT I'VE BUILT ============ -->
+<!-- ============ WORK ============ -->
 <section id="work">
   <div class="wrap">
     <div class="kicker reveal"><em>02</em> What I've Built</div>
+    <div class="cards">
 
-    <article class="case reveal">
-      <div class="case-num">01</div>
-      <div>
-        <div class="case-tag">Framework · The Foundation</div>
-        <h3>The 4D Human Development Model</h3>
-        <p>An operating system for human growth. The 4D Model maps development the way an iceberg sits in water — the visible dimension of behavior above the line, and the submerged dimensions of cognition, emotion, and meaning beneath it. It gives AI systems something they've never had: a rigorous, longitudinal representation of a person's interior development, not just their activity. It is the substrate every system I build runs on.</p>
-      </div>
-      <div class="case-stats">
-        <div class="case-stat"><div class="n">4</div><div class="l">Dimensions mapped</div></div>
-        <div class="case-stat"><div class="n">10<span>+</span></div><div class="l">Years of research</div></div>
-        <div class="case-stat"><div class="n">1</div><div class="l">Unifying substrate</div></div>
-      </div>
-    </article>
+      <article class="card reveal">
+        <canvas data-viz="tesseract" aria-hidden="true"></canvas>
+        <div class="card-body">
+          <div class="card-tag">The Foundation</div>
+          <h3>The 4D Human Development Model</h3>
+          <p>An operating system for human growth — four dimensions, one substrate.</p>
+          <div class="card-stat"><span class="n">10+</span><span class="l">Years of research</span></div>
+        </div>
+      </article>
 
-    <article class="case reveal">
-      <div class="case-num">02</div>
-      <div>
-        <div class="case-tag">Symbiotic AI · The Companion</div>
-        <h3>A Personal AI That Evolves With You</h3>
-        <p>A developmental companion built on the 4D substrate — an AI that doesn't reset with every conversation, but carries a living model of where you are in your growth and recalibrates as you change. Early partners use it for decision-making under pressure, breaking long-held patterns, and sustaining practices that used to collapse after week two. The measure of success is inverted from the industry standard: the system wins when you need it differently, not when you need it more.</p>
-      </div>
-      <div class="case-stats">
-        <div class="case-stat"><div class="n">92<span>%</span></div><div class="l">90-day practice retention</div></div>
-        <div class="case-stat"><div class="n">1:1</div><div class="l">Model per human</div></div>
-        <div class="case-stat"><div class="n">0</div><div class="l">Engagement-bait metrics</div></div>
-      </div>
-    </article>
+      <article class="card reveal" style="--d:0.12s">
+        <canvas data-viz="orbit" aria-hidden="true"></canvas>
+        <div class="card-body">
+          <div class="card-tag">The Companion</div>
+          <h3>A Personal AI That Evolves With You</h3>
+          <p>It carries a living model of you — and recalibrates as you change.</p>
+          <div class="card-stat"><span class="n">92%</span><span class="l">90-day retention</span></div>
+        </div>
+      </article>
 
-    <article class="case reveal">
-      <div class="case-num">03</div>
-      <div>
-        <div class="case-tag">Advisory · The Multiplier</div>
-        <h3>Symbiotic Systems for Founders &amp; Leadership Teams</h3>
-        <p>Private engagements bringing consciousness technology into companies — building bespoke developmental AI around a founder or an executive team, wired into how they actually decide, communicate, and grow. The result isn't a chatbot in the corner; it's a second nervous system for the organization, one that surfaces the submerged dynamics that usually only show up in the post-mortem.</p>
-      </div>
-      <div class="case-stats">
-        <div class="case-stat"><div class="n">12</div><div class="l">Private engagements</div></div>
-        <div class="case-stat"><div class="n">3<span>×</span></div><div class="l">Avg. decision velocity</div></div>
-        <div class="case-stat"><div class="n">100<span>%</span></div><div class="l">By referral</div></div>
-      </div>
-    </article>
+      <article class="card reveal" style="--d:0.24s">
+        <canvas data-viz="network" aria-hidden="true"></canvas>
+        <div class="card-body">
+          <div class="card-tag">The Multiplier</div>
+          <h3>Symbiotic Systems for Leadership</h3>
+          <p>Bespoke developmental AI, wired into how founders and teams decide.</p>
+          <div class="card-stat"><span class="n">100%</span><span class="l">By referral</span></div>
+        </div>
+      </article>
 
+    </div>
   </div>
 </section>
 
-<!-- ============ WHAT PEOPLE SAY ============ -->
+<!-- ============ VOICES ============ -->
 <section id="voices">
   <div class="wrap">
     <div class="kicker reveal"><em>03</em> What People Say</div>
     <div class="quotes">
       <figure class="quote reveal">
-        <blockquote>“Every advisor I've hired optimized my company. Malik is the first one who <em>upgraded the person running it.</em>”</blockquote>
-        <figcaption>Founder &amp; CEO · Venture-backed AI company</figcaption>
+        <blockquote>“The first advisor who <em>upgraded the person</em> running the company.”</blockquote>
+        <figcaption>Founder &amp; CEO</figcaption>
       </figure>
-      <figure class="quote reveal">
-        <blockquote>“The system he built doesn't feel like software. It feels like <em>a mirror that learned patience.</em> Six months in, it knows me in ways my journal never managed.”</blockquote>
-        <figcaption>Private client · Symbiotic AI engagement</figcaption>
+      <figure class="quote reveal" style="--d:0.12s">
+        <blockquote>“A mirror that <em>learned patience.</em>”</blockquote>
+        <figcaption>Private client</figcaption>
       </figure>
-      <figure class="quote reveal">
-        <blockquote>“We brought him in for an AI strategy. We left with a <em>different definition of what our company is for.</em> Expensive, and worth every cent.”</blockquote>
-        <figcaption>Managing Partner · Leadership advisory firm</figcaption>
+      <figure class="quote reveal" style="--d:0.24s">
+        <blockquote>“Expensive, and <em>worth every cent.</em>”</blockquote>
+        <figcaption>Managing Partner</figcaption>
       </figure>
     </div>
   </div>
 </section>
 
-<!-- ============ WORK WITH ME ============ -->
-<section id="engage">
-  <div class="wrap engage">
-    <div class="kicker reveal"><em>04</em> Work With Me</div>
+<!-- ============ ENGAGE ============ -->
+<section id="engage" class="engage">
+  <canvas id="halo" aria-hidden="true"></canvas>
+  <div class="wrap engage-inner">
+    <div class="kicker reveal" style="justify-content:center;"><em>04</em> Work With Me</div>
     <h2 class="reveal" style="--d:0.08s">One way in: a <em>private engagement.</em></h2>
-    <p class="engage-sub reveal" style="--d:0.16s">I take a small number of private engagements each year — founders, executives, and teams ready to build symbiotic AI around their own development. No packages, no tiers. One conversation to find out if the work is right.</p>
+    <p class="engage-sub reveal" style="--d:0.16s">A few engagements a year. No packages, no tiers. One conversation to find out if the work is right.</p>
     <a class="btn reveal" style="--d:0.24s" href="mailto:malik@builderbee.co?subject=Private%20Engagement%20Inquiry">
       Request a conversation
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -619,7 +481,7 @@
 </main>
 
 <footer>
-  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem; width:100%;">
+  <div class="wrap">
     <span>© <span id="year"></span> Malik Palamar</span>
     <span>Consciousness Technologies · Symbiotic AI</span>
     <a href="mailto:malik@builderbee.co">malik@builderbee.co</a>
@@ -627,12 +489,15 @@
 </footer>
 
 <script>
-  // current year
+(() => {
+  'use strict';
   document.getElementById('year').textContent = new Date().getFullYear();
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ACCENT = [232, 163, 61], INK = [236, 231, 221];
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
-  // nav border on scroll + progress bar
+  /* ---------- scroll chrome ---------- */
   const nav = document.getElementById('nav');
   const progress = document.getElementById('progress');
   let ticking = false;
@@ -644,32 +509,279 @@
       nav.classList.toggle('scrolled', y > 40);
       const max = document.documentElement.scrollHeight - window.innerHeight;
       progress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
-      // subtle parallax on the hero lattice
-      const lattice = document.getElementById('lattice');
-      if (!reduced && lattice && y < window.innerHeight * 1.2) {
-        lattice.style.transform = 'translateY(calc(-50% + ' + y * 0.08 + 'px))';
-      }
       ticking = false;
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // reveal on scroll
+  /* ---------- reveal ---------- */
   const targets = document.querySelectorAll('.reveal');
   if (reduced || !('IntersectionObserver' in window)) {
     targets.forEach(el => el.classList.add('in'));
   } else {
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in');
-          io.unobserve(e.target);
-        }
-      });
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     targets.forEach(el => io.observe(el));
   }
+
+  /* ---------- canvas helper: retina sizing + run-when-visible ---------- */
+  function makeViz(canvas, draw) {
+    const ctx = canvas.getContext('2d');
+    let w = 0, h = 0, raf = null, t = 0;
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const r = canvas.getBoundingClientRect();
+      w = r.width; h = r.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function frame() {
+      t += 1;
+      draw(ctx, w, h, t);
+      raf = requestAnimationFrame(frame);
+    }
+    function start() { if (!raf) { resize(); raf = requestAnimationFrame(frame); } }
+    function stop() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+    window.addEventListener('resize', () => { if (raf) resize(); });
+    if (reduced) { // single static frame
+      resize(); t = 200; draw(ctx, w, h, t);
+      window.addEventListener('resize', () => { resize(); draw(ctx, w, h, t); });
+      return;
+    }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop()), { threshold: 0.05 }).observe(canvas);
+    } else start();
+  }
+
+  /* ---------- HERO: 3D particle iceberg ---------- */
+  (() => {
+    const canvas = document.getElementById('berg');
+    if (!canvas) return;
+
+    // sample points on the iceberg surfaces: pyramid tip above the line, larger mass below
+    const pts = [];
+    const tri = (a, b, c, n, col) => {
+      for (let i = 0; i < n; i++) {
+        let u = Math.random(), v = Math.random();
+        if (u + v > 1) { u = 1 - u; v = 1 - v; }
+        pts.push({
+          x: a[0] + u * (b[0] - a[0]) + v * (c[0] - a[0]),
+          y: a[1] + u * (b[1] - a[1]) + v * (c[1] - a[1]),
+          z: a[2] + u * (b[2] - a[2]) + v * (c[2] - a[2]),
+          c: col, p: Math.random() * Math.PI * 2
+        });
+      }
+    };
+    const apex = [0, 1.15, 0];
+    const topBase = [[0.85, 0, 0.85], [-0.85, 0, 0.85], [-0.85, 0, -0.85], [0.85, 0, -0.85]];
+    const botBase = [[0.55, -1.7, 0.55], [-0.55, -1.7, 0.55], [-0.55, -1.7, -0.55], [0.55, -1.7, -0.55]];
+    for (let i = 0; i < 4; i++) {
+      const j = (i + 1) % 4;
+      tri(apex, topBase[i], topBase[j], 190, 'a');                       // tip faces — amber
+      tri(topBase[i], topBase[j], botBase[j], 210, 'w');                 // submerged walls — pale
+      tri(topBase[i], botBase[j], botBase[i], 210, 'w');
+    }
+    tri(botBase[0], botBase[1], botBase[2], 90, 'w');
+    tri(botBase[0], botBase[2], botBase[3], 90, 'w');
+
+    // ambient dust
+    const dust = Array.from({ length: 110 }, () => ({
+      x: Math.random(), y: Math.random(), r: Math.random() * 1.2 + 0.3,
+      s: Math.random() * 0.00012 + 0.00004, p: Math.random() * Math.PI * 2
+    }));
+
+    let mx = 0, my = 0;
+    window.addEventListener('pointermove', e => {
+      mx = (e.clientX / window.innerWidth - 0.5);
+      my = (e.clientY / window.innerHeight - 0.5);
+    }, { passive: true });
+
+    makeViz(canvas, (ctx, w, h, t) => {
+      ctx.clearRect(0, 0, w, h);
+
+      // dust field
+      for (const d of dust) {
+        const dy = (d.y + t * d.s) % 1;
+        const tw = 0.25 + 0.2 * Math.sin(t * 0.02 + d.p);
+        ctx.fillStyle = rgba(INK, tw * 0.35);
+        ctx.beginPath();
+        ctx.arc(d.x * w, dy * h, d.r, 0, 7);
+        ctx.fill();
+      }
+
+      const cx = w * (w > 760 ? 0.66 : 0.5);
+      const cy = h * 0.46;
+      const scale = Math.min(w, h) * 0.30;
+      const rotY = t * 0.004 + mx * 0.9;
+      const rotX = -0.14 + my * 0.35;
+      const sy = Math.sin(rotY), cyr = Math.cos(rotY);
+      const sx = Math.sin(rotX), cxr = Math.cos(rotX);
+
+      // waterline ring (dashed, drawn under the points)
+      ctx.strokeStyle = rgba(ACCENT, 0.28);
+      ctx.setLineDash([2, 7]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, scale * 1.55, scale * 1.55 * Math.abs(sx) + 6, 0, 0, 7);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      for (const p of pts) {
+        // breathe
+        const br = 1 + 0.02 * Math.sin(t * 0.015 + p.p);
+        let x = p.x * br, y = p.y * br, z = p.z * br;
+        // rotate Y then X
+        let x1 = x * cyr - z * sy, z1 = x * sy + z * cyr;
+        let y1 = y * cxr - z1 * sx, z2 = y * sx + z1 * cxr;
+        const persp = 1 / (1 + z2 * 0.18);
+        const px = cx + x1 * scale * persp;
+        const py = cy - y1 * scale * persp;
+        const depth = Math.max(0.15, Math.min(1, persp - 0.1));
+        if (p.c === 'a') {
+          ctx.fillStyle = rgba(ACCENT, 0.85 * depth);
+        } else {
+          ctx.fillStyle = rgba(INK, 0.28 * depth);
+        }
+        ctx.beginPath();
+        ctx.arc(px, py, 1.4 * persp, 0, 7);
+        ctx.fill();
+      }
+
+      // apex beacon
+      const bx = cx + (apex[0] * cyr - apex[2] * sy) * scale;
+      const by = cy - (apex[1] * cxr - (apex[0] * sy + apex[2] * cyr) * sx) * scale;
+      const g = ctx.createRadialGradient(bx, by, 0, bx, by, 26);
+      g.addColorStop(0, rgba(ACCENT, 0.5));
+      g.addColorStop(1, rgba(ACCENT, 0));
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(bx, by, 26, 0, 7); ctx.fill();
+    });
+  })();
+
+  /* ---------- CARD 1: rotating tesseract ---------- */
+  function tesseractViz(ctx, w, h, t) {
+    ctx.clearRect(0, 0, w, h);
+    const V = [];
+    for (let i = 0; i < 16; i++) V.push([i & 1 ? 1 : -1, i & 2 ? 1 : -1, i & 4 ? 1 : -1, i & 8 ? 1 : -1]);
+    const a = t * 0.008, b = t * 0.005;
+    const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
+    const P = V.map(v => {
+      let [x, y, z, u] = v;
+      let x1 = x * ca - u * sa, u1 = x * sa + u * ca;          // rotate xw
+      let y1 = y * cb - z * sb, z1 = y * sb + z * cb;          // rotate yz
+      const d4 = 1 / (2.4 - u1);                                // 4D -> 3D
+      let X = x1 * d4 * 2.4, Y = y1 * d4 * 2.4, Z = z1 * d4 * 2.4;
+      const d3 = 1 / (1 + Z * 0.12);                            // 3D -> 2D
+      return [w / 2 + X * w * 0.19 * d3, h / 2 + Y * w * 0.19 * d3, d3, u1];
+    });
+    for (let i = 0; i < 16; i++) for (let j = i + 1; j < 16; j++) {
+      const d = i ^ j;
+      if (d && !(d & (d - 1))) { // differ in exactly one bit = edge
+        const inner = (i & 8) && (j & 8);
+        ctx.strokeStyle = rgba(inner ? INK : ACCENT, inner ? 0.18 : 0.4);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(P[i][0], P[i][1]);
+        ctx.lineTo(P[j][0], P[j][1]);
+        ctx.stroke();
+      }
+    }
+    for (const p of P) {
+      ctx.fillStyle = rgba(ACCENT, 0.9 * p[2]);
+      ctx.beginPath(); ctx.arc(p[0], p[1], 1.8 * p[2], 0, 7); ctx.fill();
+    }
+  }
+
+  /* ---------- CARD 2: symbiotic orbits ---------- */
+  const orbiters = Array.from({ length: 64 }, (_, i) => ({
+    a: (i / 64) * Math.PI * 2,
+    side: i % 2,
+    sp: 0.008 + Math.random() * 0.004,
+    ph: Math.random() * Math.PI * 2
+  }));
+  function orbitViz(ctx, w, h, t) {
+    ctx.fillStyle = 'rgba(11,10,8,0.28)';                       // trail fade
+    ctx.fillRect(0, 0, w, h);
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.32;
+    const mix = (Math.sin(t * 0.006) + 1) / 2;                  // orbits slowly exchange
+    for (const o of orbiters) {
+      o.a += o.sp;
+      const m = o.side ? mix : 1 - mix;
+      const r = R * (0.55 + 0.45 * m) + Math.sin(t * 0.02 + o.ph) * 3;
+      const tilt = o.side ? 0.55 : -0.55;
+      const x = cx + Math.cos(o.a) * r;
+      const y = cy + Math.sin(o.a) * r * (0.45 + Math.abs(tilt) * 0.3) + Math.cos(o.a) * r * tilt * 0.18;
+      const c = o.side ? ACCENT : INK;
+      ctx.fillStyle = rgba(c, o.side ? 0.8 : 0.4);
+      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, 7); ctx.fill();
+    }
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 14);
+    g.addColorStop(0, rgba(ACCENT, 0.55));
+    g.addColorStop(1, rgba(ACCENT, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, 14, 0, 7); ctx.fill();
+  }
+
+  /* ---------- CARD 3: constellation ---------- */
+  const nodes = Array.from({ length: 26 }, () => ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random() - 0.5) * 0.0011, vy: (Math.random() - 0.5) * 0.0011,
+    hot: Math.random() < 0.25
+  }));
+  function networkViz(ctx, w, h, t) {
+    ctx.clearRect(0, 0, w, h);
+    for (const n of nodes) {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0.04 || n.x > 0.96) n.vx *= -1;
+      if (n.y < 0.06 || n.y > 0.94) n.vy *= -1;
+    }
+    const th = Math.min(w, h) * 0.34;
+    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+      const A = nodes[i], B = nodes[j];
+      const dx = (A.x - B.x) * w, dy = (A.y - B.y) * h;
+      const d = Math.hypot(dx, dy);
+      if (d < th) {
+        const hot = A.hot && B.hot;
+        ctx.strokeStyle = rgba(hot ? ACCENT : INK, (1 - d / th) * (hot ? 0.5 : 0.14));
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(A.x * w, A.y * h); ctx.lineTo(B.x * w, B.y * h); ctx.stroke();
+      }
+    }
+    for (const n of nodes) {
+      const tw = n.hot ? 0.9 : 0.5 + 0.2 * Math.sin(t * 0.03 + n.x * 9);
+      ctx.fillStyle = rgba(n.hot ? ACCENT : INK, tw);
+      ctx.beginPath(); ctx.arc(n.x * w, n.y * h, n.hot ? 2.2 : 1.4, 0, 7); ctx.fill();
+    }
+  }
+
+  const vizMap = { tesseract: tesseractViz, orbit: orbitViz, network: networkViz };
+  document.querySelectorAll('canvas[data-viz]').forEach(c => makeViz(c, vizMap[c.dataset.viz]));
+
+  /* ---------- ENGAGE: breathing halo ---------- */
+  (() => {
+    const canvas = document.getElementById('halo');
+    if (!canvas) return;
+    makeViz(canvas, (ctx, w, h, t) => {
+      ctx.clearRect(0, 0, w, h);
+      const cx = w / 2, cy = h * 0.42;
+      const base = Math.min(w, h) * 0.42;
+      for (let i = 0; i < 3; i++) {
+        const r = base * (0.55 + i * 0.28) * (1 + 0.03 * Math.sin(t * 0.012 + i * 1.8));
+        ctx.strokeStyle = rgba(ACCENT, 0.12 - i * 0.03);
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+      }
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, base);
+      g.addColorStop(0, rgba(ACCENT, 0.07));
+      g.addColorStop(1, rgba(ACCENT, 0));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    });
+  })();
+})();
 </script>
 
 </body>
