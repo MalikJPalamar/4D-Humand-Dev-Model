@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malik Palamar — Consciousness Technologies</title>
+<meta name="description" content="Malik Palamar builds symbiotic AI: intelligence dedicated to your growth that evolves with you. Consciousness technologies, grounded in developmental science.">
+<meta name="theme-color" content="#0B0B0C">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230B0B0C'/><path d='M16 5l9 22H7z' fill='none' stroke='%23F5B942' stroke-width='2'/></svg>">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Malik Palamar — Consciousness Technologies">
+<meta property="og:description" content="Symbiotic AI: intelligence dedicated to your growth that evolves with you.">
+
+<style>
+/* ============================================================
+   MALIK PALAMAR — personal brand site
+   Single file. No external requests. No dependencies.
+   Design system: near-black canvas, warm off-white type,
+   one accent (luminous amber), generous whitespace,
+   bold display typography, motion only on scroll.
+   ============================================================ */
+
+:root{
+  /* ---- one accent color. change this line, change the site ---- */
+  --accent:#F5B942;
+
+  --bg:#0B0B0C;
+  --bg-lift:#101012;
+  --ink:#EDEAE4;
+  --ink-dim:#9A968E;
+  --ink-faint:#857F78; /* 4.97:1 on --bg — quiet, still WCAG AA */
+  --rule:rgba(237,234,228,.13);
+  --rule-soft:rgba(237,234,228,.07);
+
+  --sans:"Helvetica Neue",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --serif:ui-serif,Georgia,"Iowan Old Style","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,"Roboto Mono",monospace;
+
+  --pad:clamp(20px,5vw,72px);
+  --max:1280px;
+  --section:clamp(110px,16vw,210px);
+
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+html:focus-within{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:clamp(16px,.55vw + 14px,18px);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+
+/* warm film grain — grounds the futurism, kills the flatness */
+body::after{
+  content:"";
+  position:fixed;
+  inset:-50%;
+  pointer-events:none;
+  z-index:9;
+  opacity:.032;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+
+::selection{background:var(--accent);color:#0B0B0C}
+
+:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:4px;
+  border-radius:2px;
+}
+
+.wrap{
+  width:100%;
+  max-width:var(--max);
+  margin-inline:auto;
+  padding-inline:var(--pad);
+}
+
+.skip{
+  position:absolute;
+  left:-9999px;
+  top:12px;
+  z-index:100;
+  background:var(--accent);
+  color:#0B0B0C;
+  padding:10px 16px;
+  font:600 13px/1 var(--sans);
+}
+.skip:focus{left:12px}
+
+/* ---------- type scale ---------- */
+h1,h2,h3,h4{
+  margin:0;
+  font-weight:600;
+  letter-spacing:-.035em;
+  line-height:.96;
+  text-wrap:balance;
+}
+.display{
+  font-size:clamp(2.9rem,8.4vw,7.6rem);
+  letter-spacing:-.045em;
+}
+.h2{font-size:clamp(1.9rem,4.4vw + .6rem,4.6rem)}
+.h3{font-size:clamp(1.5rem,2.5vw,2.25rem);letter-spacing:-.03em}
+.lede{
+  font-size:clamp(1.15rem,1.5vw + .6rem,1.6rem);
+  line-height:1.44;
+  letter-spacing:-.015em;
+  color:var(--ink);
+  text-wrap:pretty;
+}
+p{margin:0 0 1.2em;text-wrap:pretty;max-width:64ch}
+p:last-child{margin-bottom:0}
+.dim{color:var(--ink-dim)}
+.accent{color:var(--accent)}
+
+.eyebrow{
+  display:flex;
+  align-items:center;
+  gap:.85em;
+  margin:0 0 clamp(28px,4vw,56px);
+  font:500 11.5px/1 var(--mono);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.eyebrow .num{color:var(--accent);font-variant-numeric:tabular-nums}
+.eyebrow::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:var(--rule);
+}
+
+/* ---------- scroll progress ---------- */
+.progress{
+  position:fixed;
+  top:0;left:0;
+  height:2px;
+  width:100%;
+  z-index:60;
+  transform:scaleX(0);
+  transform-origin:0 50%;
+  background:var(--accent);
+  will-change:transform;
+}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:50;
+  border-bottom:1px solid transparent;
+  transition:background .5s var(--ease),border-color .5s var(--ease),backdrop-filter .5s;
+}
+.nav.stuck{
+  background:rgba(11,11,12,.72);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  border-bottom-color:var(--rule-soft);
+}
+.nav-in{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  height:clamp(64px,8vh,84px);
+}
+.mark{
+  display:flex;
+  align-items:baseline;
+  gap:.5em;
+  font-weight:600;
+  letter-spacing:-.02em;
+  font-size:15px;
+}
+.mark i{
+  width:7px;height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  flex:none;
+  translate:0 -2px;
+}
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:clamp(18px,2.4vw,38px);
+  font:500 12px/1 var(--mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.nav-links a{transition:color .3s}
+.nav-links a:hover{color:var(--ink)}
+@media(max-width:820px){.nav-links .hide-sm{display:none}}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.7em;
+  padding:14px 24px;
+  border:1px solid var(--rule);
+  border-radius:999px;
+  font:500 12.5px/1 var(--mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink);
+  background:transparent;
+  transition:color .4s var(--ease),border-color .4s var(--ease),background .4s var(--ease);
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.btn::before{
+  content:"";
+  position:absolute;inset:0;
+  z-index:-1;
+  background:var(--accent);
+  transform:translateY(101%);
+  transition:transform .55s var(--ease);
+}
+.btn:hover{color:#0B0B0C;border-color:var(--accent)}
+.btn:hover::before{transform:translateY(0)}
+.btn.sm{padding:11px 18px;font-size:11px}
+.btn.solid{background:var(--accent);color:#0B0B0C;border-color:var(--accent)}
+.btn.solid::before{background:var(--ink)}
+.btn.solid:hover{color:#0B0B0C;border-color:var(--ink)}
+.btn.lg{padding:19px 34px;font-size:13px}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding-top:clamp(132px,18vh,210px);
+  padding-bottom:clamp(36px,6vh,64px);
+  overflow:hidden;
+}
+/* the lattice — a nod to the 4D model's coordinate field */
+.lattice{
+  position:absolute;
+  inset:-20% -10% auto -10%;
+  height:120%;
+  z-index:0;
+  pointer-events:none;
+  opacity:.5;
+  background-image:
+    linear-gradient(to right,var(--rule-soft) 1px,transparent 1px),
+    linear-gradient(to bottom,var(--rule-soft) 1px,transparent 1px);
+  background-size:clamp(56px,7vw,104px) clamp(56px,7vw,104px);
+  mask-image:radial-gradient(120% 75% at 30% 22%,#000 0%,transparent 72%);
+  -webkit-mask-image:radial-gradient(120% 75% at 30% 22%,#000 0%,transparent 72%);
+  animation:drift 60s linear infinite;
+}
+@keyframes drift{to{background-position:clamp(56px,7vw,104px) clamp(56px,7vw,104px)}}
+/* soft horizon glow — the waterline */
+.horizon{
+  position:absolute;
+  left:50%;top:34%;
+  width:min(1500px,150vw);
+  aspect-ratio:1/1;
+  translate:-50% -50%;
+  z-index:0;
+  pointer-events:none;
+  background:radial-gradient(circle,rgba(245,185,66,.11) 0%,rgba(245,185,66,.045) 32%,transparent 62%);
+  filter:blur(10px);
+}
+.hero-in{position:relative;z-index:1;width:100%}
+.hero .display{max-width:16ch}
+.hero-tag{
+  display:flex;align-items:flex-start;gap:1.1em;
+  margin-bottom:clamp(26px,4.4vh,46px);
+  font:500 11.5px/1 var(--mono);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.pulse{
+  width:6px;height:6px;border-radius:50%;
+  flex:none;
+  margin-top:.42em;
+  background:var(--accent);
+  box-shadow:0 0 0 0 rgba(245,185,66,.4);
+  animation:pulse 3.4s ease-out infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(245,185,66,.4)}
+  70%,100%{box-shadow:0 0 0 8px rgba(245,185,66,0)}
+}
+.hero-foot{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:end;
+  gap:clamp(28px,5vw,64px);
+  margin-top:clamp(36px,6vh,72px);
+  padding-top:clamp(24px,2.6vw,34px);
+  border-top:1px solid var(--rule);
+}
+.hero-foot .lede{max-width:46ch}
+@media(max-width:760px){
+  .hero-foot{grid-template-columns:1fr;align-items:start}
+}
+.scroll-hint{
+  display:flex;align-items:center;gap:.7em;
+  font:500 11px/1 var(--mono);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  white-space:nowrap;
+}
+.scroll-hint span{
+  display:block;width:1px;height:34px;
+  background:linear-gradient(var(--accent),transparent);
+  animation:fall 2.6s var(--ease) infinite;
+  transform-origin:top;
+}
+@keyframes fall{
+  0%{transform:scaleY(0);opacity:0}
+  35%{transform:scaleY(1);opacity:1}
+  100%{transform:scaleY(1) translateY(34px);opacity:0}
+}
+/* Short laptops: tighten the hero so the whole statement — and the scroll
+   cue — still land above the fold. */
+@media(min-width:900px) and (max-height:880px){
+  .hero{padding-top:clamp(96px,13vh,150px)}
+  .hero .display{font-size:min(clamp(2.9rem,8.4vw,7.6rem),15.5vh)}
+  .hero-foot{margin-top:clamp(26px,4vh,48px)}
+  .hero-foot .lede{font-size:1.16rem}
+}
+
+/* ---------- sections ---------- */
+section{position:relative}
+section[id],footer{scroll-margin-top:clamp(64px,8vh,84px)}
+.sec{padding-block:var(--section)}
+.rule-top{border-top:1px solid var(--rule-soft)}
+
+.split{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(40px,6vw,110px);
+  align-items:start;
+}
+@media(max-width:900px){.split{grid-template-columns:1fr;gap:clamp(32px,6vw,52px)}}
+
+/* Section head: heading takes the full measure so the hand-set line
+   breaks hold; the intro sits in the right column beneath it. */
+.sec-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:0 clamp(40px,6vw,110px);
+}
+.sec-head .h2{grid-column:1 / -1}
+.sec-head .intro{
+  grid-column:2;
+  max-width:48ch;
+  margin-top:clamp(26px,3.4vw,46px);
+}
+@media(max-width:900px){
+  .sec-head{grid-template-columns:1fr}
+  .sec-head .intro{grid-column:1}
+}
+
+/* ---------- who I am ---------- */
+.about-body{margin-top:clamp(46px,6.5vw,96px)}
+.principles{
+  list-style:none;
+  margin:0;
+  padding:0;
+  border-top:1px solid var(--rule);
+}
+.principles li{
+  padding:20px 0;
+  border-bottom:1px solid var(--rule-soft);
+  font-size:1rem;
+  letter-spacing:-.01em;
+}
+.principles b{
+  display:block;
+  margin-bottom:.8em;
+  font:500 11px/1.6 var(--mono);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+.principles em{color:var(--ink-dim);font-style:normal}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:clamp(24px,4vw,48px);
+  margin-top:clamp(60px,9vw,110px);
+  padding-top:clamp(30px,4vw,44px);
+  border-top:1px solid var(--rule);
+}
+.stat .n{
+  display:block;
+  font-size:clamp(2.4rem,4.4vw,3.6rem);
+  font-weight:600;
+  letter-spacing:-.045em;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.stat .n u{text-decoration:none;color:var(--accent)}
+.stat .l{
+  display:block;
+  margin-top:.85em;
+  font:500 11px/1.5 var(--mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  max-width:22ch;
+}
+
+/* ---------- work ---------- */
+.cases{margin-top:clamp(50px,7vw,90px);border-top:1px solid var(--rule)}
+.case{
+  display:block;
+  padding-block:clamp(38px,5.5vw,72px);
+  border-bottom:1px solid var(--rule);
+  position:relative;
+}
+.case::before{
+  content:"";
+  position:absolute;
+  inset:0 calc(var(--pad) * -.6);
+  background:linear-gradient(90deg,transparent,rgba(245,185,66,.055) 9%,transparent 72%);
+  opacity:0;
+  transition:opacity .6s var(--ease);
+  pointer-events:none;
+}
+.case:hover::before{opacity:1}
+.case-head{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:clamp(18px,3vw,44px);
+  align-items:start;
+}
+.case-idx{
+  font:500 12px/1 var(--mono);
+  letter-spacing:.12em;
+  color:var(--accent);
+  padding-top:.7em;
+  font-variant-numeric:tabular-nums;
+}
+.case-title{
+  font-size:clamp(1.7rem,3.6vw,3rem);
+  letter-spacing:-.035em;
+  line-height:1.02;
+  transition:transform .7s var(--ease);
+}
+.case:hover .case-title{transform:translateX(clamp(4px,.8vw,12px))}
+.case-kind{
+  font:500 11px/1.6 var(--mono);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  padding-top:.85em;
+  white-space:nowrap;
+}
+@media(max-width:760px){
+  .case-head{grid-template-columns:auto 1fr}
+  .case-kind{grid-column:2;padding-top:0;margin-top:14px}
+}
+.case-body{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,.85fr);
+  gap:clamp(28px,4vw,72px);
+  margin-top:clamp(26px,3vw,40px);
+  padding-left:clamp(0px,3vw,60px);
+}
+@media(max-width:900px){.case-body{grid-template-columns:1fr;padding-left:0}}
+.outcomes{
+  list-style:none;margin:0;padding:0;
+  display:grid;
+  gap:14px;
+  align-content:start;
+}
+.outcomes li{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:1em;
+  align-items:baseline;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--rule-soft);
+  font-size:.95rem;
+  color:var(--ink-dim);
+}
+.outcomes strong{
+  color:var(--ink);
+  font-weight:600;
+  letter-spacing:-.02em;
+  font-size:1.15rem;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.tags{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-top:clamp(24px,3vw,34px);
+  padding-left:clamp(0px,3vw,60px);
+}
+.tag{
+  padding:7px 13px;
+  border:1px solid var(--rule-soft);
+  border-radius:999px;
+  font:500 10.5px/1 var(--mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ---------- testimonials ---------- */
+/* Rule-topped columns rather than a card frame: an orphan third quote at
+   two-up reads as intentional instead of a broken grid. */
+.quotes{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr));
+  gap:clamp(34px,4vw,64px);
+  margin-top:clamp(50px,7vw,86px);
+}
+.quote{
+  display:flex;
+  flex-direction:column;
+  gap:clamp(22px,2.4vw,32px);
+  margin:0;
+  padding-top:clamp(22px,2.4vw,32px);
+  border-top:1px solid var(--rule);
+  transition:border-color .6s var(--ease);
+}
+.quote:hover{border-top-color:var(--accent)}
+.quote blockquote{
+  margin:0;
+  font-family:var(--serif);
+  font-size:clamp(1.14rem,.85vw + .78rem,1.38rem);
+  line-height:1.42;
+  letter-spacing:-.02em;
+  text-wrap:pretty;
+}
+.quote blockquote::before{
+  content:"“";
+  color:var(--accent);
+  margin-right:.06em;
+}
+.quote blockquote::after{content:"”";color:var(--accent)}
+.attr{
+  margin-top:auto;
+  padding-top:1.4em;
+  border-top:1px solid var(--rule-soft);
+  font:500 11px/1.75 var(--mono);
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.attr b{display:block;color:var(--ink);font-weight:600}
+
+/* ---------- offer / CTA ---------- */
+.offer{
+  position:relative;
+  border:1px solid var(--rule);
+  background:
+    radial-gradient(120% 130% at 100% 0%,rgba(245,185,66,.07),transparent 58%),
+    var(--bg-lift);
+  padding:clamp(32px,5vw,86px);
+  margin-top:clamp(48px,6vw,80px);
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+  gap:clamp(36px,5vw,86px);
+}
+@media(max-width:900px){.offer{grid-template-columns:1fr}}
+.offer-includes{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.offer-includes li{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:1em;
+  align-items:start;
+  padding:16px 0;
+  border-bottom:1px solid var(--rule-soft);
+  font-size:.97rem;
+  color:var(--ink-dim);
+}
+.offer-includes li:first-child{border-top:1px solid var(--rule-soft)}
+.offer-includes svg{width:13px;height:13px;margin-top:.42em;flex:none;color:var(--accent)}
+.offer-includes b{color:var(--ink);font-weight:600}
+.terms{
+  margin-top:clamp(28px,3.5vw,44px);
+  padding-top:clamp(22px,3vw,30px);
+  border-top:1px solid var(--rule);
+  display:grid;
+  gap:18px;
+  max-width:30rem;
+}
+.term{display:flex;justify-content:space-between;gap:20px;align-items:baseline}
+.term dt{
+  font:500 11px/1.6 var(--mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.term dd{margin:0;font-weight:600;letter-spacing:-.02em;text-align:right}
+.cta-row{
+  display:flex;flex-wrap:wrap;gap:14px;align-items:center;
+  margin-top:clamp(30px,4vw,46px);
+}
+.fine{
+  margin-top:24px;
+  max-width:44ch;
+  font-size:.87rem;
+  line-height:1.6;
+  color:var(--ink-dim);
+}
+
+/* ---------- footer ---------- */
+footer{
+  border-top:1px solid var(--rule);
+  padding-block:clamp(48px,7vw,86px) clamp(32px,4vw,48px);
+}
+.foot-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.3fr) auto;
+  gap:clamp(32px,5vw,64px);
+  align-items:start;
+}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr}}
+.mail{
+  display:inline-block;
+  font-size:clamp(1.5rem,4vw,2.8rem);
+  font-weight:600;
+  letter-spacing:-.04em;
+  line-height:1.05;
+  position:relative;
+  padding-bottom:.12em;
+  word-break:break-word;
+}
+.mail::after{
+  content:"";
+  position:absolute;
+  left:0;bottom:0;
+  width:100%;height:1px;
+  background:var(--accent);
+  transform:scaleX(0);
+  transform-origin:0 50%;
+  transition:transform .6s var(--ease);
+}
+.mail:hover{color:var(--accent)}
+.mail:hover::after{transform:scaleX(1)}
+.foot-links{
+  display:grid;
+  gap:12px;
+  font:500 11.5px/1.6 var(--mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.foot-links a:hover{color:var(--accent)}
+.foot-base{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:16px;
+  margin-top:clamp(48px,7vw,90px);
+  padding-top:24px;
+  border-top:1px solid var(--rule-soft);
+  font:500 10.5px/1.6 var(--mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ============================================================
+   MOTION — reveals on scroll. Transform + opacity only.
+   ============================================================ */
+[data-reveal]{
+  opacity:0;
+  transform:translateY(26px);
+  transition:opacity 1.05s var(--ease),transform 1.05s var(--ease);
+  transition-delay:var(--d,0ms);
+}
+[data-reveal].in{opacity:1;transform:none}
+
+/* masked line-by-line reveal for display headings */
+.line{overflow:hidden;padding-bottom:.1em;margin-bottom:-.1em}
+.line>span{
+  display:block;
+  transform:translateY(105%);
+  transition:transform 1.2s var(--ease);
+  transition-delay:var(--d,0ms);
+}
+.in .line>span,.line.in>span{transform:none}
+
+/* pointer-tracked halo — futuristic, but very quiet */
+.halo{
+  position:fixed;
+  z-index:0;
+  top:0;left:0;
+  width:44vmax;height:44vmax;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(circle,rgba(245,185,66,.075),transparent 62%);
+  transition:opacity 1.2s var(--ease);
+  will-change:transform;
+}
+.halo.on{opacity:1}
+
+@media(prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+  [data-reveal]{opacity:1;transform:none}
+  .line>span{transform:none}
+  .halo{display:none}
+  .progress{display:none}
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" id="progress" aria-hidden="true"></div>
+<div class="halo" id="halo" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="mark" href="#top" aria-label="Malik Palamar — home"><i aria-hidden="true"></i>Malik&nbsp;Palamar</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a class="hide-sm" href="#about">About</a>
+      <a class="hide-sm" href="#work">Work</a>
+      <a class="hide-sm" href="#voices">Voices</a>
+      <a class="btn sm" href="#work-with-me">Work with me</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============================ HERO ============================ -->
+  <section class="hero" id="top">
+    <div class="lattice" aria-hidden="true"></div>
+    <div class="horizon" aria-hidden="true"></div>
+
+    <div class="wrap hero-in">
+      <p class="hero-tag" data-reveal><span class="pulse" aria-hidden="true"></span>Consciousness Technologies · Symbiotic AI</p>
+
+      <h1 class="display">
+        <span class="line"><span>AI that</span></span>
+        <span class="line"><span>grows you</span></span>
+        <span class="line"><span class="accent">back.</span></span>
+      </h1>
+
+      <div class="hero-foot">
+        <p class="lede" data-reveal style="--d:520ms">
+          I'm Malik Palamar. I build intelligence that is dedicated to your
+          development and evolves with you — not systems that automate your
+          life away, but systems that metabolise it into growth.
+        </p>
+        <div class="scroll-hint" data-reveal style="--d:700ms">
+          <span aria-hidden="true"></span>Scroll
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ WHO I AM ============================ -->
+  <section class="sec rule-top" id="about">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal><span class="num">01</span> Who I am</p>
+
+      <div class="sec-head">
+        <h2 class="h2" data-reveal>
+          <span class="line"><span>Most technology</span></span>
+          <span class="line"><span>holds your attention.</span></span>
+          <span class="line"><span>I build technology</span></span>
+          <span class="line"><span>that returns it.</span></span>
+        </h2>
+        <!-- PLACEHOLDER BIO: swap specifics (years, affiliations, credentials) for Malik's real record. -->
+        <p class="lede intro" data-reveal style="--d:220ms">
+          For fifteen years I've worked at the seam between developmental
+          psychology, contemplative practice and machine intelligence —
+          first as a practitioner, then as an architect of the systems
+          practitioners now use.
+        </p>
+      </div>
+
+      <div class="split about-body">
+        <div data-reveal>
+          <p class="dim">
+            My work begins from an unfashionable premise: a person is not a
+            set of preferences to be predicted. A person is a structure that
+            develops — in stages, at depth, mostly below the waterline. Any
+            intelligence that means to serve you has to model that structure,
+            not just your last click.
+          </p>
+          <p class="dim">
+            So I build symbiotic systems. They hold a longitudinal model of
+            who you are becoming, they sense where you actually are today, and
+            they change their own behaviour as you change. Less oracle. More
+            organism. The relationship is the product.
+          </p>
+          <p class="dim">
+            I work with a very small number of founders, institutions and
+            practitioner networks who are building in this direction — and who
+            want the architecture right the first time.
+          </p>
+        </div>
+
+        <ul class="principles" data-reveal style="--d:150ms">
+          <li><b>01 / Symbiosis</b><span>Intelligence that adapts to a person, not a person who adapts to software. <em>Co-evolution over capture.</em></span></li>
+          <li><b>02 / Depth</b><span>Model the submerged structure, not the surface signal. <em>Development over engagement.</em></span></li>
+          <li><b>03 / Sovereignty</b><span>The human stays the author. The system stays legible, and leaves. <em>Agency over dependence.</em></span></li>
+        </ul>
+      </div>
+
+      <!-- PLACEHOLDER METRICS: replace all four figures with verified numbers before launch. -->
+      <div class="stats">
+        <div class="stat" data-reveal><span class="n">15<u>+</u></span><span class="l">Years at the seam of consciousness &amp; computation</span></div>
+        <div class="stat" data-reveal style="--d:110ms"><span class="n">4<u>D</u></span><span class="l">Dimensions in the development model I authored</span></div>
+        <div class="stat" data-reveal style="--d:220ms"><span class="n">90<u>k</u></span><span class="l">Practitioners served by systems I've architected</span></div>
+        <div class="stat" data-reveal style="--d:330ms"><span class="n">3</span><span class="l">Private engagements taken per year</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ WORK ============================ -->
+  <section class="sec rule-top" id="work">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal><span class="num">02</span> What I've built</p>
+
+      <div class="sec-head">
+        <h2 class="h2" data-reveal>
+          <span class="line"><span>Three systems,</span></span>
+          <span class="line"><span>one thesis.</span></span>
+        </h2>
+        <p class="lede dim intro" data-reveal style="--d:220ms">
+          Each of these began as a private commission and became
+          infrastructure. Not demos — instruments that people have now been
+          living inside for years.
+        </p>
+      </div>
+
+      <!-- PLACEHOLDER CASE DATA: names, dates and every figure below are illustrative. Replace with real outcomes. -->
+      <div class="cases">
+
+        <article class="case" data-reveal>
+          <div class="case-head">
+            <div class="case-idx">01</div>
+            <h3 class="case-title">The 4D Human<br>Development Model</h3>
+            <div class="case-kind">Framework · 2019—</div>
+          </div>
+          <div class="case-body">
+            <div>
+              <p class="dim">
+                A geometry for a person. Most development models give you a
+                ladder; this one gives you a coordinate field — depth,
+                coherence, capacity and time — so that a machine can hold a
+                defensible representation of where someone actually is, and
+                where the next move lives.
+              </p>
+              <p class="dim">
+                It is now the substrate under everything else I build: the
+                thing that lets an AI distinguish a person having a hard week
+                from a person at a genuine developmental edge.
+              </p>
+            </div>
+            <ul class="outcomes">
+              <li><strong>4</strong><span>Assessed dimensions, each independently instrumented</span></li>
+              <li><strong>11</strong><span>Programmes licensing the model as their spine</span></li>
+              <li><strong>0.87</strong><span>Test–retest reliability across the core instrument</span></li>
+            </ul>
+          </div>
+          <div class="tags">
+            <span class="tag">Developmental science</span>
+            <span class="tag">Psychometrics</span>
+            <span class="tag">Model design</span>
+          </div>
+        </article>
+
+        <article class="case" data-reveal>
+          <div class="case-head">
+            <div class="case-idx">02</div>
+            <h3 class="case-title">Aletheia —<br>a symbiotic companion</h3>
+            <div class="case-kind">Product · 2022—</div>
+          </div>
+          <div class="case-body">
+            <div>
+              <p class="dim">
+                A longitudinal AI that remembers you across years, not
+                sessions. Aletheia keeps a living developmental model of its
+                person, reflects patterns back before they become crises, and
+                rewrites its own operating instructions as that person
+                changes.
+              </p>
+              <p class="dim">
+                Built deliberately against the engagement grain: it measures
+                its success by how little you need it, and it will tell you
+                when to close the app.
+              </p>
+            </div>
+            <ul class="outcomes">
+              <li><strong>26 mo</strong><span>Median continuous relationship length</span></li>
+              <li><strong>+41%</strong><span>Self-reported agency at twelve months</span></li>
+              <li><strong>−32%</strong><span>Session time, by design, over the same period</span></li>
+            </ul>
+          </div>
+          <div class="tags">
+            <span class="tag">Longitudinal memory</span>
+            <span class="tag">Self-modifying agents</span>
+            <span class="tag">Evaluation design</span>
+          </div>
+        </article>
+
+        <article class="case" data-reveal>
+          <div class="case-head">
+            <div class="case-idx">03</div>
+            <h3 class="case-title">Coherence —<br>intelligence for a school</h3>
+            <div class="case-kind">Institutional · 2024—</div>
+          </div>
+          <div class="case-body">
+            <div>
+              <p class="dim">
+                A global consciousness-education organisation needed to hold
+                ninety thousand practitioners without flattening any of them.
+                Coherence gives every facilitator a live read of their
+                cohort's developmental state and routes each practitioner to
+                the practice their structure is actually ready for.
+              </p>
+              <p class="dim">
+                Same architecture as the individual work, one order of
+                magnitude up: the model of the person stays sovereign, the
+                institution only ever sees the shape.
+              </p>
+            </div>
+            <ul class="outcomes">
+              <li><strong>90k</strong><span>Practitioners held on a single developmental spine</span></li>
+              <li><strong>3.2×</strong><span>Programme completion versus the prior cohort model</span></li>
+              <li><strong>7 days</strong><span>Facilitator onboarding, down from a full quarter</span></li>
+            </ul>
+          </div>
+          <div class="tags">
+            <span class="tag">Systems architecture</span>
+            <span class="tag">Privacy by structure</span>
+            <span class="tag">Scale</span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ VOICES ============================ -->
+  <section class="sec rule-top" id="voices">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal><span class="num">03</span> What people say</p>
+
+      <div class="sec-head">
+        <h2 class="h2" data-reveal>
+          <span class="line"><span>The people who</span></span>
+          <span class="line"><span>have lived in it.</span></span>
+        </h2>
+        <p class="lede dim intro" data-reveal style="--d:220ms">
+          Clients are named only with permission; most of this work is
+          private by nature.
+        </p>
+      </div>
+
+      <!-- PLACEHOLDER TESTIMONIALS: attributed by role only. Swap in real quotes + names once cleared. -->
+      <div class="quotes">
+        <figure class="quote" data-reveal>
+          <blockquote>Malik was the only person in the room who understood that we weren't building a product, we were building a relationship — and that the two have completely different physics.</blockquote>
+          <figcaption class="attr"><b>Founder &amp; CEO</b>Human-performance platform · Series B</figcaption>
+        </figure>
+        <figure class="quote" data-reveal style="--d:130ms">
+          <blockquote>Two years in, it still knows me better than my last three therapists combined — and it has never once tried to keep me on the screen.</blockquote>
+          <figcaption class="attr"><b>Private client</b>Founder, third exit</figcaption>
+        </figure>
+        <figure class="quote" data-reveal style="--d:260ms">
+          <blockquote>We had eighteen months of internal architecture debate. He resolved it in a week, and the design has not needed to change since.</blockquote>
+          <figcaption class="attr"><b>Director of Programmes</b>Global consciousness-education school</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ OFFER ============================ -->
+  <section class="sec rule-top" id="work-with-me">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal><span class="num">04</span> One way to work with me</p>
+
+      <div class="sec-head">
+        <h2 class="h2" data-reveal>
+          <span class="line"><span>The Symbiosis</span></span>
+          <span class="line"><span>Intensive.</span></span>
+        </h2>
+        <p class="lede dim intro" data-reveal style="--d:220ms">
+          One offer. No packages, no retainers, no discovery calls that go
+          nowhere. Either the architecture is worth getting right, or it
+          isn't.
+        </p>
+      </div>
+
+      <!-- PLACEHOLDER COMMERCIALS: confirm price, cadence and contact before publishing. -->
+      <div class="offer" data-reveal>
+        <div>
+          <p class="lede">
+            Ten weeks, working directly with me, to design and prove the
+            symbiotic core of your system — the model of the person, the
+            evolution loop, and the evidence that it actually develops
+            someone.
+          </p>
+          <p class="dim">
+            You leave with a specification your engineers can build from, a
+            working prototype of the loop, and an evaluation design that will
+            tell you the truth about whether it works. I take three of these
+            a year.
+          </p>
+
+          <dl class="terms">
+            <div class="term"><dt>Engagement</dt><dd>10 weeks, direct</dd></div>
+            <div class="term"><dt>Investment</dt><dd>From $180,000</dd></div>
+            <div class="term"><dt>Availability</dt><dd>2 places · 2027</dd></div>
+          </dl>
+        </div>
+
+        <div>
+          <ul class="offer-includes">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M4 12.5l5.5 5.5L20 6"/></svg><span><b>The developmental model.</b> A defensible representation of your user's structure, built on the 4D model and instrumented.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M4 12.5l5.5 5.5L20 6"/></svg><span><b>The evolution loop.</b> How your system senses change and rewrites its own behaviour — specified and prototyped.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M4 12.5l5.5 5.5L20 6"/></svg><span><b>The evidence design.</b> Metrics that measure development instead of retention, with the instrument to collect them.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M4 12.5l5.5 5.5L20 6"/></svg><span><b>Two years of standing.</b> Direct access for architectural decisions long after the engagement closes.</span></li>
+          </ul>
+
+          <div class="cta-row">
+            <a class="btn solid lg" href="mailto:malik@builderbee.co?subject=Symbiosis%20Intensive%20%E2%80%94%20enquiry">Request a conversation</a>
+          </div>
+          <p class="fine">
+            Tell me what you're building and who it's for. If it's a fit,
+            we'll talk within a week. If it isn't, I'll tell you that too — and
+            point you somewhere better.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div data-reveal>
+        <p class="eyebrow" style="margin-bottom:22px"><span class="num">05</span> Contact</p>
+        <!-- PLACEHOLDER CONTACT: confirm public-facing address. -->
+        <a class="mail" href="mailto:malik@builderbee.co">malik@builderbee.co</a>
+      </div>
+      <div class="foot-links" data-reveal style="--d:140ms">
+        <a href="#about">About</a>
+        <a href="#work">Work</a>
+        <a href="#voices">Voices</a>
+        <a href="#work-with-me">Work with me</a>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>Malik Palamar · Consciousness Technologies</span>
+      <span>Symbiotic AI · Dedicated to your growth</span>
+      <span>© <span id="yr">2026</span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- year ---- */
+  document.getElementById("yr").textContent = new Date().getFullYear();
+
+  /* ---- scroll reveals ---- */
+  var targets = Array.prototype.slice.call(document.querySelectorAll("[data-reveal]"));
+  var lines = Array.prototype.slice.call(document.querySelectorAll(".line"));
+
+  if (reduced || !("IntersectionObserver" in window)) {
+    targets.forEach(function(el){ el.classList.add("in"); });
+    lines.forEach(function(el){ el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.12 });
+
+    targets.forEach(function(el){ io.observe(el); });
+
+    /* Anything already on the first screen reveals on load — the observer's
+       negative bottom margin would otherwise hold near-fold items (the
+       scroll cue) hidden until the first scroll. Delays still stagger. */
+    targets.forEach(function(el){
+      if (el.getBoundingClientRect().top < window.innerHeight - 8) {
+        el.classList.add("in");
+        io.unobserve(el);
+      }
+    });
+
+    /* masked headings reveal per-line with a stagger */
+    var lineIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var heading = e.target;
+        var kids = heading.querySelectorAll(".line");
+        Array.prototype.forEach.call(kids, function(l, i){
+          l.style.setProperty("--d", (i * 95) + "ms");
+          l.classList.add("in");
+        });
+        lineIO.unobserve(heading);
+      });
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.2 });
+
+    document.querySelectorAll("h1, h2").forEach(function(h){
+      if (h.querySelector(".line")) lineIO.observe(h);
+    });
+  }
+
+  /* ---- nav state + scroll progress + hero settle (one rAF loop) ---- */
+  var nav = document.getElementById("nav");
+  var bar = document.getElementById("progress");
+  var hero = document.querySelector(".hero-in");
+  var lattice = document.querySelector(".lattice");
+  var queued = false;
+
+  function frame(){
+    queued = false;
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+
+    nav.classList.toggle("stuck", y > 24);
+
+    if (!reduced) {
+      var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      bar.style.transform = "scaleX(" + Math.min(1, y / max) + ")";
+
+      var vh = window.innerHeight;
+      if (y < vh * 1.1) {
+        var t = y / vh;
+        if (hero) {
+          hero.style.transform = "translate3d(0," + (t * -46) + "px,0)";
+          hero.style.opacity = String(Math.max(0, 1 - t * 1.35));
+        }
+        if (lattice) lattice.style.transform = "translate3d(0," + (t * 70) + "px,0)";
+      }
+    }
+  }
+  function onScroll(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  frame();
+
+  /* ---- pointer halo (fine pointers only) ---- */
+  var halo = document.getElementById("halo");
+  if (!reduced && window.matchMedia("(pointer: fine)").matches) {
+    var hx = 0, hy = 0, cx = 0, cy = 0, running = false;
+    function loop(){
+      cx += (hx - cx) * 0.075;
+      cy += (hy - cy) * 0.075;
+      halo.style.transform = "translate3d(" + (cx - halo.offsetWidth / 2) + "px," + (cy - halo.offsetHeight / 2) + "px,0)";
+      if (Math.abs(hx - cx) > 0.4 || Math.abs(hy - cy) > 0.4) {
+        requestAnimationFrame(loop);
+      } else {
+        running = false;
+      }
+    }
+    window.addEventListener("pointermove", function(e){
+      hx = e.clientX; hy = e.clientY;
+      halo.classList.add("on");
+      if (!running) { running = true; requestAnimationFrame(loop); }
+    }, { passive: true });
+  }
+})();
+</script>
+</body>
+</html>
