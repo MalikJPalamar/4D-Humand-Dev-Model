@@ -515,6 +515,9 @@ const Audio = {
   nextDriftStep: 0,
   padVoices: [],
 
+  /* every started source node, so a preset change can retire the old score */
+  live: new Set(),
+
   /* visual hand-off */
   events: []
 };
@@ -529,7 +532,9 @@ function initAudio() {
 
   /* ---- master bus: trim -> gentle limiter -> out ---- */
   const master = ctx.createGain();
-  master.gain.value = 0.9;
+  /* Start from the persisted slider, not a fixed default: a returning
+     listener who left this muted must not get full volume on Begin. */
+  master.gain.value = masterGainFor(State.volume);
 
   const limiter = ctx.createDynamicsCompressor();
   limiter.threshold.value = -10;
@@ -642,12 +647,29 @@ function buildNoise(ctx, seconds) {
 }
 
 /* Frees a voice's nodes once it has finished sounding. Without this a
-   multi-hour session slowly accumulates dead nodes. */
+   multi-hour session slowly accumulates dead nodes. Every started source
+   is also tracked so a preset change can retire the outgoing score. */
 function autoRelease(source, ...nodes) {
+  Audio.live.add(source);
   source.onended = () => {
+    Audio.live.delete(source);
     try { source.disconnect(); } catch (e) {}
     for (const n of nodes) { try { n.disconnect(); } catch (e) {} }
   };
+}
+
+/* Silence everything the outgoing preset scheduled. Pads are held for a
+   whole chord and bell tails run to 8.5 s, so without this they are still
+   attached to the shared musical bus when the crossfade ramps it back up
+   — and the old key fades in underneath the new one. Callers duck the bus
+   to zero first, so stopping mid-envelope cannot click. Sources whose
+   start time has not arrived yet are cancelled outright. */
+function retireVoices() {
+  if (!Audio.ready) return;
+  const t = Audio.ctx.currentTime;
+  for (const src of Array.from(Audio.live)) {
+    try { src.stop(t); } catch (e) { Audio.live.delete(src); }
+  }
 }
 
 function makePanner(pan) {
@@ -875,9 +897,18 @@ function playPulse(t, level, freq, decay) {
 
 /* ---- composition -------------------------------------------------- */
 
+/* The renderer drains this queue from the head only, so it has to be kept
+   in time order rather than emission order. A shadow bell is scheduled up
+   to 1.5 steps into the future and would otherwise sit at the head holding
+   back every earlier-timed event queued after it, which shows up as the
+   visuals lagging the music by a step. Input is very nearly sorted, so
+   scanning back from the tail is effectively constant time. */
 function emit(type, time, data) {
-  Audio.events.push({ type, time, data });
-  if (Audio.events.length > 512) Audio.events.splice(0, 256);
+  const q = Audio.events;
+  let i = q.length;
+  while (i > 0 && q[i - 1].time > time) i--;
+  q.splice(i, 0, { type, time, data });
+  if (q.length > 512) q.splice(0, 256);
 }
 
 function chooseChord() {
@@ -1100,11 +1131,18 @@ function setPreset(key, immediate) {
   if (!Audio.ready) { Audio.presetKey = key; return; }
 
   if (immediate || !Audio.running) {
+    retireVoices();
     applyPresetAudio(key);
     if (Audio.running) startTransport();
     return;
   }
-  if (key === wasKey || switching) return;
+
+  /* A request arriving mid-crossfade is absorbed rather than dropped: the
+     transition in flight reads State.presetKey when it lands, so it always
+     applies the most recent choice and the engine cannot end up on a
+     different preset from the one the chips and storage show. */
+  if (switching) return;
+  if (key === wasKey) return;
 
   /* crossfade: duck the musical bus, swap the score underneath it,
      then bring it back. Nothing ever hard-cuts. */
@@ -1115,7 +1153,9 @@ function setPreset(key, immediate) {
   g.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.5);
 
   setTimeout(() => {
-    applyPresetAudio(key);
+    const target = State.presetKey;
+    retireVoices();
+    applyPresetAudio(target);
     startTransport();
     const t = Audio.ctx.currentTime;
     Audio.voices.gain.setValueAtTime(0.0001, t);
@@ -1157,11 +1197,15 @@ function pause() {
   syncPlayIcon();
 }
 
+/* perceptual-ish taper */
+function masterGainFor(v) {
+  return Math.pow(clamp(v, 0, 1), 1.6) * 1.05;
+}
+
 function setVolume(v) {
   State.volume = clamp(v, 0, 1);
   if (Audio.ready) {
-    /* perceptual-ish taper */
-    Audio.master.gain.setTargetAtTime(Math.pow(State.volume, 1.6) * 1.05, Audio.ctx.currentTime, 0.08);
+    Audio.master.gain.setTargetAtTime(masterGainFor(State.volume), Audio.ctx.currentTime, 0.08);
   }
   save();
 }
