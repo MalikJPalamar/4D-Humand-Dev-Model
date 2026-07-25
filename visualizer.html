@@ -311,10 +311,12 @@ const Engine = {
     if (this.running) return;
     this.running = true;
 
+    // suspend() freezes audio time with any scheduled voices intact, so
+    // on resume the old positions are still valid — resetting them here
+    // would stack a fresh chord on top of the still-active one.
     const t = this.ctx.currentTime + 0.1;
-    this.nextStep = t;
-    this.nextChord = t;
-    this.stepCount = 0;
+    this.nextStep = Math.max(this.nextStep, t);
+    this.nextChord = Math.max(this.nextChord, t);
     this.noiseGain.gain.setTargetAtTime(0.05, t, 4);
     this.timer = setInterval(() => this.schedule(), 40);
   },
@@ -631,15 +633,19 @@ const Vis = {
     this.hue += dh * Math.min(1, dt * 0.7);
     const baseHue = (this.hue + Math.sin(this.time * 0.03) * c.drift * 8) % 360;
 
+    // per-frame constants below are tuned for 60 Hz; f rescales them so
+    // pacing is identical on 120/144 Hz (or throttled) displays
+    const f = this.f = dt * 60;
+
     this.analyse();
     this.spawnFromEvents();
-    this.breathe *= 0.985;
+    this.breathe *= Math.pow(0.985, f);
 
     this.rot += dt * c.speed * (0.15 + this.mid * 1.6);
 
     // trail fade — the source of the hypnotic smear
     gfx.globalCompositeOperation = "source-over";
-    gfx.fillStyle = `rgba(4, 5, 10, ${c.trail})`;
+    gfx.fillStyle = `rgba(4, 5, 10, ${1 - Math.pow(1 - c.trail, f)})`;
     gfx.fillRect(0, 0, W, H);
 
     gfx.globalCompositeOperation = "lighter";
@@ -666,9 +672,9 @@ const Vis = {
     const count = Math.min(this.dust.length, c.dust | 0);
     for (let i = 0; i < count; i++) {
       const p = this.dust[i];
-      p.a += p.w * 0.002;
-      p.x += Math.cos(p.a) * p.z * 0.25;
-      p.y += Math.sin(p.a) * p.z * 0.25 - p.z * 0.08;
+      p.a += p.w * 0.002 * this.f;
+      p.x += (Math.cos(p.a) * p.z * 0.25) * this.f;
+      p.y += (Math.sin(p.a) * p.z * 0.25 - p.z * 0.08) * this.f;
       if (p.x < -5) p.x = W + 5; if (p.x > W + 5) p.x = -5;
       if (p.y < -5) p.y = H + 5; if (p.y > H + 5) p.y = -5;
       const tw = 0.25 + this.treble * 1.6 * p.z;
@@ -724,8 +730,8 @@ const Vis = {
   drawRipples(hue) {
     this.ripples = this.ripples.filter((r) => r.life > 0);
     for (const r of this.ripples) {
-      r.r += r.v;
-      r.life = Math.max(0, r.life - r.decay);
+      r.r += r.v * this.f;
+      r.life = Math.max(0, r.life - r.decay * this.f);
       gfx.strokeStyle = `hsla(${(hue + r.hueOff + 360) % 360}, 85%, 65%, ${r.life * 0.35})`;
       gfx.lineWidth = r.width * r.life;
       gfx.beginPath();
@@ -739,9 +745,9 @@ const Vis = {
     for (const p of this.particles) {
       // gentle spiral drift around the center
       const dx = p.x - CX, dy = p.y - CY;
-      p.x += p.vx + -dy * p.spin;
-      p.y += p.vy + dx * p.spin;
-      p.life = Math.max(0, p.life - p.decay);
+      p.x += (p.vx + -dy * p.spin) * this.f;
+      p.y += (p.vy + dx * p.spin) * this.f;
+      p.life = Math.max(0, p.life - p.decay * this.f);
       const a = p.life * p.life * 0.85;
       gfx.fillStyle = `hsla(${(hue + p.hueOff + 360) % 360}, 90%, 70%, ${a})`;
       gfx.beginPath();
