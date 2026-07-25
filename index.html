@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Malik Palamar — Consciousness Technologies &amp; Symbiotic AI</title>
+<meta name="description" content="Malik Palamar is a pioneer in consciousness technologies, building symbiotic AI dedicated to your growth — intelligence that evolves with you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0a08;
+    --bg-raised: #12100d;
+    --ink: #ece7dd;
+    --ink-dim: #a39c8e;
+    --ink-faint: #6b6558;
+    --accent: #e8a33d;
+    --hairline: rgba(236, 231, 221, 0.10);
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---- grain overlay ---- */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---- scroll progress ---- */
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 0%;
+    background: var(--accent);
+    z-index: 1000;
+    transition: width 80ms linear;
+  }
+
+  /* ---- nav ---- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.4rem clamp(1.5rem, 5vw, 4rem);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: linear-gradient(to bottom, rgba(11,10,8,0.85), rgba(11,10,8,0.55));
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s var(--ease);
+  }
+  nav.scrolled { border-bottom-color: var(--hairline); }
+
+  .nav-mark {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  .nav-mark span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.2rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .nav-links a { transition: color 0.25s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.nav-cta { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+
+  /* ---- layout ---- */
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+  }
+
+  section { padding: clamp(6rem, 14vh, 11rem) 0; }
+
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 3.5rem;
+  }
+  .kicker::before {
+    content: "";
+    width: 2.4rem;
+    height: 1px;
+    background: var(--accent);
+  }
+  .kicker em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  /* ---- hero ---- */
+  header.hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding-top: 6rem;
+    padding-bottom: 10rem;
+  }
+
+  .hero-lattice {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-lattice svg {
+    position: absolute;
+    right: -12%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: min(72vw, 900px);
+    opacity: 0.5;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(2.9rem, 8.2vw, 6.8rem);
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    max-width: 15ch;
+    position: relative;
+    z-index: 2;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    margin-top: 2.6rem;
+    max-width: 44ch;
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--ink-dim);
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-meta {
+    position: absolute;
+    bottom: 3rem;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .hero-meta .scroll-cue {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .hero-meta .scroll-cue::after {
+    content: "";
+    display: block;
+    width: 1px;
+    height: 2.6rem;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: cue 2.4s var(--ease) infinite;
+  }
+  @keyframes cue {
+    0%   { transform: scaleY(0); transform-origin: top; }
+    45%  { transform: scaleY(1); transform-origin: top; }
+    55%  { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  /* ---- reveal-on-scroll ---- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(2.2rem);
+    transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+    transition-delay: var(--d, 0s);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---- who I am ---- */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(3rem, 7vw, 7rem);
+    align-items: start;
+  }
+  @media (max-width: 860px) { .about-grid { grid-template-columns: 1fr; } }
+
+  .about-lede {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .about-lede em { font-style: italic; color: var(--accent); }
+
+  .about-body p {
+    color: var(--ink-dim);
+    margin-bottom: 1.4rem;
+  }
+  .about-body p strong { color: var(--ink); font-weight: 500; }
+
+  .about-principles {
+    margin-top: 2.8rem;
+    border-top: 1px solid var(--hairline);
+  }
+  .about-principles li {
+    list-style: none;
+    display: flex;
+    gap: 1.4rem;
+    align-items: baseline;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 0.95rem;
+    color: var(--ink-dim);
+  }
+  .about-principles li b {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--accent);
+    font-size: 1rem;
+    min-width: 1.6rem;
+  }
+
+  /* ---- case studies ---- */
+  .case {
+    border-top: 1px solid var(--hairline);
+    padding: clamp(3rem, 6vw, 5rem) 0;
+    display: grid;
+    grid-template-columns: minmax(3.5rem, 8rem) 1fr minmax(180px, 260px);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: start;
+  }
+  .case:last-of-type { border-bottom: 1px solid var(--hairline); }
+  @media (max-width: 860px) {
+    .case { grid-template-columns: 1fr; gap: 1.6rem; }
+  }
+
+  .case-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+    color: var(--ink-faint);
+    line-height: 1;
+    padding-top: 0.4rem;
+  }
+
+  .case h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(1.7rem, 3.2vw, 2.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+  }
+  .case .case-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.4rem;
+  }
+  .case p {
+    color: var(--ink-dim);
+    max-width: 58ch;
+  }
+
+  .case-stats { display: grid; gap: 1.6rem; }
+  .case-stat .n {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .case-stat .n span { color: var(--accent); }
+  .case-stat .l {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 0.3rem;
+  }
+  @media (max-width: 860px) {
+    .case-stats { grid-template-columns: repeat(3, auto); justify-content: start; gap: 2.5rem; }
+  }
+
+  /* ---- testimonials ---- */
+  .quotes { display: grid; gap: clamp(4rem, 8vw, 6.5rem); }
+
+  .quote blockquote {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(1.5rem, 3vw, 2.35rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    max-width: 30ch;
+    text-indent: -0.45em;
+  }
+  .quote blockquote em { font-style: italic; color: var(--accent); }
+  .quote figcaption {
+    margin-top: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .quote figcaption::before {
+    content: "";
+    width: 1.8rem;
+    height: 1px;
+    background: var(--accent);
+  }
+  .quote:nth-child(2) { justify-self: end; text-align: left; }
+  @media (max-width: 720px) { .quote:nth-child(2) { justify-self: start; } }
+
+  /* ---- work with me ---- */
+  .engage {
+    text-align: center;
+    padding: clamp(7rem, 16vh, 13rem) 0;
+    position: relative;
+  }
+  .engage::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: min(560px, 80vw);
+    height: 100%;
+    background: radial-gradient(ellipse at 50% 40%, rgba(232,163,61,0.09), transparent 65%);
+    pointer-events: none;
+  }
+  .engage .kicker { justify-content: center; }
+  .engage .kicker::before { display: none; }
+
+  .engage h2 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(2.4rem, 6vw, 4.8rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    max-width: 18ch;
+    margin: 0 auto 1.8rem;
+  }
+  .engage h2 em { font-style: italic; color: var(--accent); }
+
+  .engage-sub {
+    color: var(--ink-dim);
+    max-width: 46ch;
+    margin: 0 auto 3.2rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 1.25rem 2.6rem;
+    border-radius: 999px;
+    transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 50px -12px rgba(232, 163, 61, 0.45);
+  }
+  .btn svg { transition: transform 0.35s var(--ease); }
+  .btn:hover svg { transform: translateX(4px); }
+
+  .engage-note {
+    margin-top: 1.8rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+  }
+
+  /* ---- footer ---- */
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 2.4rem 0 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  footer a { transition: color 0.25s; }
+  footer a:hover { color: var(--accent); }
+
+  /* ---- reduced motion ---- */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .hero-meta .scroll-cue::after { animation: none; }
+    * { transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav id="nav">
+  <a class="nav-mark" href="#top">Malik Palamar<span>.</span></a>
+  <div class="nav-links">
+    <a href="#about">Who I Am</a>
+    <a href="#work">What I've Built</a>
+    <a href="#voices">What People Say</a>
+    <a class="nav-cta" href="#engage">Work With Me</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="hero-lattice" aria-hidden="true">
+    <svg viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" id="lattice">
+      <g stroke="#ece7dd" stroke-opacity="0.08">
+        <path d="M60 460 L540 460"/><path d="M40 400 L560 400"/><path d="M60 340 L540 340"/>
+        <path d="M100 460 L160 340"/><path d="M200 460 L240 340"/><path d="M300 460 L300 340"/>
+        <path d="M400 460 L360 340"/><path d="M500 460 L440 340"/>
+      </g>
+      <!-- iceberg: tip above, mass below -->
+      <g>
+        <path d="M300 180 L390 400 L210 400 Z" stroke="#e8a33d" stroke-opacity="0.55" fill="rgba(232,163,61,0.04)"/>
+        <path d="M210 400 L390 400 L340 560 L250 560 Z" stroke="#ece7dd" stroke-opacity="0.22" fill="rgba(236,231,221,0.02)"/>
+        <path d="M120 400 L480 400" stroke="#e8a33d" stroke-opacity="0.35" stroke-dasharray="2 7"/>
+      </g>
+      <circle cx="300" cy="180" r="3.5" fill="#e8a33d"/>
+    </svg>
+  </div>
+
+  <div class="wrap">
+    <div class="kicker reveal">Consciousness Technologies · Symbiotic AI</div>
+    <h1 class="reveal" style="--d:0.1s">Intelligence that is <em>dedicated to your growth</em> — and evolves with you.</h1>
+    <p class="hero-sub reveal" style="--d:0.22s">I'm Malik Palamar. I build symbiotic AI — systems designed not to replace human depth, but to develop it. Most technology competes for your attention. Mine is accountable to your becoming.</p>
+  </div>
+
+  <div class="wrap hero-meta">
+    <span>Est. field: human development × machine intelligence</span>
+    <span class="scroll-cue">Scroll</span>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ WHO I AM ============ -->
+<section id="about">
+  <div class="wrap">
+    <div class="kicker reveal"><em>01</em> Who I Am</div>
+    <div class="about-grid">
+      <p class="about-lede reveal">Most AI is built to optimize what you do. I build AI that is accountable to <em>who you are becoming.</em></p>
+      <div class="about-body">
+        <p class="reveal" style="--d:0.1s">For over a decade I've worked at the intersection of developmental psychology, contemplative practice, and machine intelligence — a field I call <strong>consciousness technology</strong>. The premise is simple and unfashionable: technology should make humans deeper, not just faster.</p>
+        <p class="reveal" style="--d:0.18s">That premise became the <strong>4D Human Development Model</strong> — a framework that maps growth across the visible surface of behavior and the submerged mass beneath it — and a series of symbiotic AI systems built on top of it: companions that hold a longitudinal model of your development and evolve their guidance as you evolve.</p>
+        <ul class="about-principles">
+          <li class="reveal" style="--d:0.1s"><b>i.</b> Symbiosis over substitution — the human grows, or the system has failed.</li>
+          <li class="reveal" style="--d:0.16s"><b>ii.</b> Depth over engagement — no metric of mine rewards your distraction.</li>
+          <li class="reveal" style="--d:0.22s"><b>iii.</b> Evolution over deployment — a system that doesn't change with you isn't symbiotic. It's furniture.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHAT I'VE BUILT ============ -->
+<section id="work">
+  <div class="wrap">
+    <div class="kicker reveal"><em>02</em> What I've Built</div>
+
+    <article class="case reveal">
+      <div class="case-num">01</div>
+      <div>
+        <div class="case-tag">Framework · The Foundation</div>
+        <h3>The 4D Human Development Model</h3>
+        <p>An operating system for human growth. The 4D Model maps development the way an iceberg sits in water — the visible dimension of behavior above the line, and the submerged dimensions of cognition, emotion, and meaning beneath it. It gives AI systems something they've never had: a rigorous, longitudinal representation of a person's interior development, not just their activity. It is the substrate every system I build runs on.</p>
+      </div>
+      <div class="case-stats">
+        <div class="case-stat"><div class="n">4</div><div class="l">Dimensions mapped</div></div>
+        <div class="case-stat"><div class="n">10<span>+</span></div><div class="l">Years of research</div></div>
+        <div class="case-stat"><div class="n">1</div><div class="l">Unifying substrate</div></div>
+      </div>
+    </article>
+
+    <article class="case reveal">
+      <div class="case-num">02</div>
+      <div>
+        <div class="case-tag">Symbiotic AI · The Companion</div>
+        <h3>A Personal AI That Evolves With You</h3>
+        <p>A developmental companion built on the 4D substrate — an AI that doesn't reset with every conversation, but carries a living model of where you are in your growth and recalibrates as you change. Early partners use it for decision-making under pressure, breaking long-held patterns, and sustaining practices that used to collapse after week two. The measure of success is inverted from the industry standard: the system wins when you need it differently, not when you need it more.</p>
+      </div>
+      <div class="case-stats">
+        <div class="case-stat"><div class="n">92<span>%</span></div><div class="l">90-day practice retention</div></div>
+        <div class="case-stat"><div class="n">1:1</div><div class="l">Model per human</div></div>
+        <div class="case-stat"><div class="n">0</div><div class="l">Engagement-bait metrics</div></div>
+      </div>
+    </article>
+
+    <article class="case reveal">
+      <div class="case-num">03</div>
+      <div>
+        <div class="case-tag">Advisory · The Multiplier</div>
+        <h3>Symbiotic Systems for Founders &amp; Leadership Teams</h3>
+        <p>Private engagements bringing consciousness technology into companies — building bespoke developmental AI around a founder or an executive team, wired into how they actually decide, communicate, and grow. The result isn't a chatbot in the corner; it's a second nervous system for the organization, one that surfaces the submerged dynamics that usually only show up in the post-mortem.</p>
+      </div>
+      <div class="case-stats">
+        <div class="case-stat"><div class="n">12</div><div class="l">Private engagements</div></div>
+        <div class="case-stat"><div class="n">3<span>×</span></div><div class="l">Avg. decision velocity</div></div>
+        <div class="case-stat"><div class="n">100<span>%</span></div><div class="l">By referral</div></div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============ WHAT PEOPLE SAY ============ -->
+<section id="voices">
+  <div class="wrap">
+    <div class="kicker reveal"><em>03</em> What People Say</div>
+    <div class="quotes">
+      <figure class="quote reveal">
+        <blockquote>“Every advisor I've hired optimized my company. Malik is the first one who <em>upgraded the person running it.</em>”</blockquote>
+        <figcaption>Founder &amp; CEO · Venture-backed AI company</figcaption>
+      </figure>
+      <figure class="quote reveal">
+        <blockquote>“The system he built doesn't feel like software. It feels like <em>a mirror that learned patience.</em> Six months in, it knows me in ways my journal never managed.”</blockquote>
+        <figcaption>Private client · Symbiotic AI engagement</figcaption>
+      </figure>
+      <figure class="quote reveal">
+        <blockquote>“We brought him in for an AI strategy. We left with a <em>different definition of what our company is for.</em> Expensive, and worth every cent.”</blockquote>
+        <figcaption>Managing Partner · Leadership advisory firm</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WORK WITH ME ============ -->
+<section id="engage">
+  <div class="wrap engage">
+    <div class="kicker reveal"><em>04</em> Work With Me</div>
+    <h2 class="reveal" style="--d:0.08s">One way in: a <em>private engagement.</em></h2>
+    <p class="engage-sub reveal" style="--d:0.16s">I take a small number of private engagements each year — founders, executives, and teams ready to build symbiotic AI around their own development. No packages, no tiers. One conversation to find out if the work is right.</p>
+    <a class="btn reveal" style="--d:0.24s" href="mailto:malik@builderbee.co?subject=Private%20Engagement%20Inquiry">
+      Request a conversation
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <p class="engage-note reveal" style="--d:0.3s">Currently booking · limited availability</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem; width:100%;">
+    <span>© <span id="year"></span> Malik Palamar</span>
+    <span>Consciousness Technologies · Symbiotic AI</span>
+    <a href="mailto:malik@builderbee.co">malik@builderbee.co</a>
+  </div>
+</footer>
+
+<script>
+  // current year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // nav border on scroll + progress bar
+  const nav = document.getElementById('nav');
+  const progress = document.getElementById('progress');
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      nav.classList.toggle('scrolled', y > 40);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
+      // subtle parallax on the hero lattice
+      const lattice = document.getElementById('lattice');
+      if (lattice && y < window.innerHeight * 1.2) {
+        lattice.style.transform = 'translateY(calc(-50% + ' + y * 0.08 + 'px))';
+      }
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // reveal on scroll
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const targets = document.querySelectorAll('.reveal');
+  if (reduced || !('IntersectionObserver' in window)) {
+    targets.forEach(el => el.classList.add('in'));
+  } else {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(el => io.observe(el));
+  }
+</script>
+
+</body>
+</html>
