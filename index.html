@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add('js');</script>
 <title>Malik Palamar — Consciousness Technologies &amp; Symbiotic AI</title>
 <meta name="description" content="Malik Palamar is a pioneer in consciousness technologies, building symbiotic AI dedicated to your growth — intelligence that evolves with you.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -218,14 +219,14 @@
     100% { transform: scaleY(0); transform-origin: bottom; }
   }
 
-  /* ---- reveal-on-scroll ---- */
-  .reveal {
+  /* ---- reveal-on-scroll (hidden state only when JS is running) ---- */
+  .js .reveal {
     opacity: 0;
     transform: translateY(2.2rem);
     transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
     transition-delay: var(--d, 0s);
   }
-  .reveal.in {
+  .js .reveal.in {
     opacity: 1;
     transform: none;
   }
@@ -458,7 +459,7 @@
   /* ---- reduced motion ---- */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .reveal { opacity: 1; transform: none; transition: none; }
+    .js .reveal { opacity: 1; transform: none; transition: none; }
     .hero-meta .scroll-cue::after { animation: none; }
     * { transition-duration: 0.01ms !important; }
   }
@@ -629,6 +630,8 @@
   // current year
   document.getElementById('year').textContent = new Date().getFullYear();
 
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // nav border on scroll + progress bar
   const nav = document.getElementById('nav');
   const progress = document.getElementById('progress');
@@ -643,7 +646,7 @@
       progress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
       // subtle parallax on the hero lattice
       const lattice = document.getElementById('lattice');
-      if (lattice && y < window.innerHeight * 1.2) {
+      if (!reduced && lattice && y < window.innerHeight * 1.2) {
         lattice.style.transform = 'translateY(calc(-50% + ' + y * 0.08 + 'px))';
       }
       ticking = false;
@@ -653,7 +656,6 @@
   onScroll();
 
   // reveal on scroll
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const targets = document.querySelectorAll('.reveal');
   if (reduced || !('IntersectionObserver' in window)) {
     targets.forEach(el => el.classList.add('in'));
