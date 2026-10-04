@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>document.documentElement.classList.add('js');</script>
+<title>Malik Palamar — Consciousness Technologies &amp; Symbiotic AI</title>
+<meta name="description" content="Malik Palamar builds symbiotic AI dedicated to your growth — intelligence that evolves with you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0a08;
+    --ink: #ece7dd;
+    --ink-dim: #a39c8e;
+    --ink-faint: #6b6558;
+    --accent: #e8a33d;
+    --hairline: rgba(236, 231, 221, 0.10);
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---- grain ---- */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 0%;
+    background: var(--accent);
+    z-index: 1000;
+    transition: width 80ms linear;
+  }
+
+  /* ---- nav ---- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.4rem clamp(1.5rem, 5vw, 4rem);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: linear-gradient(to bottom, rgba(11,10,8,0.85), rgba(11,10,8,0.4));
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s var(--ease);
+  }
+  nav.scrolled { border-bottom-color: var(--hairline); }
+
+  .nav-mark { font-family: var(--serif); font-size: 1.15rem; font-weight: 500; }
+  .nav-mark span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.2rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .nav-links a { transition: color 0.25s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.nav-cta { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+  }
+
+  section { padding: clamp(6rem, 13vh, 10rem) 0; position: relative; }
+
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 3rem;
+  }
+  .kicker::before { content: ""; width: 2.4rem; height: 1px; background: var(--accent); }
+  .kicker em { font-style: normal; color: var(--accent); }
+
+  /* ---- hero: scroll-driven dive ---- */
+  header.hero {
+    height: 100svh;
+    min-height: 620px;
+    position: relative;
+  }
+  .js header.hero { height: 280vh; }
+
+  .hero-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 620px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+  #berg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding-bottom: clamp(3rem, 9vh, 6rem);
+    will-change: transform, opacity;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(3rem, 9.5vw, 8rem);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    max-width: 12ch;
+    text-wrap: balance;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    margin-top: 1.6rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .hero-sub b { color: var(--accent); font-weight: 600; }
+
+  .dive-line {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    padding: 0 1.5rem;
+  }
+  .dive-line p {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(1.8rem, 4.5vw, 3.8rem);
+    line-height: 1.2;
+    max-width: 22ch;
+    text-wrap: balance;
+  }
+  .dive-line p em { font-style: italic; color: var(--accent); }
+  .dive-line span {
+    margin-top: 1.4rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ---- reveal (JS only) ---- */
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(2.2rem);
+    transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+    transition-delay: var(--d, 0s);
+  }
+  .js .reveal.in { opacity: 1; transform: none; }
+
+  /* ---- who ---- */
+  .lede {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(1.9rem, 4.4vw, 3.6rem);
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+    max-width: 24ch;
+    text-wrap: balance;
+  }
+  .lede em { font-style: italic; color: var(--accent); }
+
+  .principles {
+    margin-top: 3.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .principles span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.7rem 1.4rem;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .principles span:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---- marquee ---- */
+  .marquee {
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    overflow: hidden;
+    padding: 1.8rem 0;
+    white-space: nowrap;
+  }
+  .marquee-track {
+    display: inline-block;
+    animation: slide 36s linear infinite;
+  }
+  .marquee-track span {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+    color: var(--ink-faint);
+    padding-right: 1.2rem;
+  }
+  .marquee-track b {
+    color: var(--accent);
+    font-weight: 300;
+    padding-right: 1.2rem;
+  }
+  @keyframes slide {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---- work cards ---- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1rem, 2vw, 1.8rem);
+  }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+
+  .card {
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(236,231,221,0.02);
+    transition: border-color 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .card:hover { border-color: rgba(232,163,61,0.4); transform: translateY(-4px); }
+
+  .card canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .card-body { padding: 1.6rem 1.6rem 1.8rem; }
+  .card-tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.7rem;
+  }
+  .card h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.55rem;
+    line-height: 1.15;
+    margin-bottom: 0.7rem;
+    text-wrap: balance;
+  }
+  .card p { color: var(--ink-dim); font-size: 0.95rem; max-width: 40ch; }
+  .card-stat {
+    margin-top: 1.4rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+  }
+  .card-stat .n {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: 2.1rem;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .card-stat .l {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ---- voices ---- */
+  .quotes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+  @media (max-width: 900px) { .quotes { grid-template-columns: 1fr; } }
+
+  .quote blockquote {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+  .quote blockquote em { color: var(--accent); font-style: italic; }
+  .quote figcaption {
+    margin-top: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .quote figcaption::before { content: ""; width: 1.6rem; height: 1px; background: var(--accent); }
+
+  /* ---- engage ---- */
+  .engage {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #halo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+  }
+  .engage-inner { position: relative; z-index: 2; }
+  .engage h2 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(2.6rem, 6.5vw, 5.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    max-width: 16ch;
+    margin: 0 auto 1.4rem;
+    text-wrap: balance;
+  }
+  .engage h2 em { font-style: italic; color: var(--accent); }
+  .engage-sub { color: var(--ink-dim); max-width: 40ch; margin: 0 auto 3rem; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 1.25rem 2.6rem;
+    border-radius: 999px;
+    transition: box-shadow 0.35s var(--ease);
+    will-change: transform;
+  }
+  .btn:hover { box-shadow: 0 18px 50px -12px rgba(232, 163, 61, 0.45); }
+  .btn svg { transition: transform 0.35s var(--ease); }
+  .btn:hover svg { transform: translateX(4px); }
+
+  .engage-note {
+    margin-top: 1.6rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+  }
+
+  footer {
+    border-top: 1px solid var(--hairline);
+    padding: 2.4rem 0 3rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  footer a:hover { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .js header.hero { height: 100svh; }
+    .dive-line { display: none; }
+    .marquee-track { animation: none; }
+    .js .reveal { opacity: 1; transform: none; transition: none; }
+    * { transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav id="nav">
+  <a class="nav-mark" href="#top">Malik Palamar<span>.</span></a>
+  <div class="nav-links">
+    <a href="#about">Who I Am</a>
+    <a href="#work">What I've Built</a>
+    <a href="#voices">What People Say</a>
+    <a class="nav-cta" href="#engage">Work With Me</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="hero-sticky">
+    <canvas id="berg" aria-hidden="true"></canvas>
+    <div class="wrap hero-content" id="heroContent">
+      <h1 class="reveal">Intelligence that <em>evolves</em> with you.</h1>
+      <p class="hero-sub reveal" style="--d:0.15s"><b>Malik Palamar</b> · Consciousness Technologies · Symbiotic AI</p>
+    </div>
+    <div class="dive-line" id="diveLine" aria-hidden="true">
+      <p>What you do is the tip. <em>Who you are</em> is the mass beneath.</p>
+      <span>The 4D Human Development Model</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ WHO ============ -->
+<section id="about">
+  <div class="wrap">
+    <div class="kicker reveal"><em>01</em> Who I Am</div>
+    <p class="lede reveal" style="--d:0.1s">Most AI optimizes what you do. Mine is accountable to <em>who you are becoming.</em></p>
+    <div class="principles">
+      <span class="reveal" style="--d:0.15s">Symbiosis over substitution</span>
+      <span class="reveal" style="--d:0.22s">Depth over engagement</span>
+      <span class="reveal" style="--d:0.29s">Evolution over deployment</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARQUEE ============ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="marqueeTrack">
+    <span>Developmental psychology</span><b>◆</b><span>Machine intelligence</span><b>◆</b><span>Contemplative practice</span><b>◆</b><span>Symbiotic systems</span><b>◆</b>
+  </div>
+</div>
+
+<!-- ============ WORK ============ -->
+<section id="work">
+  <div class="wrap">
+    <div class="kicker reveal"><em>02</em> What I've Built</div>
+    <div class="cards">
+
+      <article class="card reveal">
+        <canvas data-viz="tesseract" aria-hidden="true"></canvas>
+        <div class="card-body">
+          <div class="card-tag">The Foundation</div>
+          <h3>The 4D Human Development Model</h3>
+          <p>An operating system for human growth — four dimensions, one substrate.</p>
+          <div class="card-stat"><span class="n" data-count>10+</span><span class="l">Years of research</span></div>
+        </div>
+      </article>
+
+      <article class="card reveal" style="--d:0.12s">
+        <canvas data-viz="orbit" aria-hidden="true"></canvas>
+        <div class="card-body">
+          <div class="card-tag">The Companion</div>
+          <h3>A Personal AI That Evolves With You</h3>
+          <p>It carries a living model of you — and recalibrates as you change.</p>
+          <div class="card-stat"><span class="n" data-count>92%</span><span class="l">90-day retention</span></div>
+        </div>
+      </article>
+
+      <article class="card reveal" style="--d:0.24s">
+        <canvas data-viz="network" aria-hidden="true"></canvas>
+        <div class="card-body">
+          <div class="card-tag">The Multiplier</div>
+          <h3>Symbiotic Systems for Leadership</h3>
+          <p>Bespoke developmental AI, wired into how founders and teams decide.</p>
+          <div class="card-stat"><span class="n" data-count>100%</span><span class="l">By referral</span></div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ VOICES ============ -->
+<section id="voices">
+  <div class="wrap">
+    <div class="kicker reveal"><em>03</em> What People Say</div>
+    <div class="quotes">
+      <figure class="quote reveal">
+        <blockquote>“The first advisor who <em>upgraded the person</em> running the company.”</blockquote>
+        <figcaption>Founder &amp; CEO</figcaption>
+      </figure>
+      <figure class="quote reveal" style="--d:0.12s">
+        <blockquote>“A mirror that <em>learned patience.</em>”</blockquote>
+        <figcaption>Private client</figcaption>
+      </figure>
+      <figure class="quote reveal" style="--d:0.24s">
+        <blockquote>“Expensive, and <em>worth every cent.</em>”</blockquote>
+        <figcaption>Managing Partner</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ENGAGE ============ -->
+<section id="engage" class="engage">
+  <canvas id="halo" aria-hidden="true"></canvas>
+  <div class="wrap engage-inner">
+    <div class="kicker reveal" style="justify-content:center;"><em>04</em> Work With Me</div>
+    <h2 class="reveal" style="--d:0.08s">One way in: a <em>private engagement.</em></h2>
+    <p class="engage-sub reveal" style="--d:0.16s">A few engagements a year. No packages, no tiers. One conversation to find out if the work is right.</p>
+    <a class="btn reveal" id="cta" style="--d:0.24s" href="mailto:malik@builderbee.co?subject=Private%20Engagement%20Inquiry">
+      Request a conversation
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <p class="engage-note reveal" style="--d:0.3s">Currently booking · limited availability</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> Malik Palamar</span>
+    <span>Consciousness Technologies · Symbiotic AI</span>
+    <a href="mailto:malik@builderbee.co">malik@builderbee.co</a>
+  </div>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ACCENT = [232, 163, 61], INK = [236, 231, 221];
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const ramp = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+
+  // duplicate marquee content so the -50% slide loops seamlessly
+  const track = document.getElementById('marqueeTrack');
+  if (track) track.innerHTML += track.innerHTML;
+
+  /* ---------- scroll chrome + dive progress ---------- */
+  const nav = document.getElementById('nav');
+  const progress = document.getElementById('progress');
+  const hero = document.querySelector('header.hero');
+  const heroContent = document.getElementById('heroContent');
+  const diveLine = document.getElementById('diveLine');
+  let diveP = 0;
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      nav.classList.toggle('scrolled', y > 40);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
+
+      if (!reduced && hero) {
+        const range = hero.offsetHeight - window.innerHeight;
+        diveP = range > 40 ? clamp(y / range, 0, 1) : 0;
+        const hide = ramp(diveP, 0.05, 0.4);
+        heroContent.style.opacity = String(1 - hide);
+        heroContent.style.transform = `translateY(${-hide * 70}px)`;
+        heroContent.style.visibility = hide >= 1 ? 'hidden' : 'visible';
+        const show = ramp(diveP, 0.45, 0.75) - ramp(diveP, 0.9, 1) * 0.9;
+        diveLine.style.opacity = String(clamp(show, 0, 1));
+        diveLine.style.transform = `translateY(${(1 - ramp(diveP, 0.45, 0.75)) * 50}px)`;
+      }
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  /* ---------- reveal ---------- */
+  const targets = document.querySelectorAll('.reveal');
+  if (reduced || !('IntersectionObserver' in window)) {
+    targets.forEach(el => el.classList.add('in'));
+  } else {
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(el => io.observe(el));
+  }
+
+  /* ---------- stat counters ---------- */
+  const counters = document.querySelectorAll('[data-count]');
+  if (!reduced && 'IntersectionObserver' in window) {
+    const cio = new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (!e.isIntersecting) return;
+        cio.unobserve(e.target);
+        const el = e.target;
+        const m = el.textContent.match(/^(\d+)(.*)$/);
+        if (!m) return;
+        const target = +m[1], suffix = m[2];
+        const t0 = performance.now(), dur = 1300;
+        (function tick(now) {
+          const p = clamp((now - t0) / dur, 0, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        })(t0);
+      });
+    }, { threshold: 0.6 });
+    counters.forEach(el => cio.observe(el));
+  }
+
+  /* ---------- magnetic CTA ---------- */
+  const cta = document.getElementById('cta');
+  if (cta && !reduced && matchMedia('(pointer: fine)').matches) {
+    const R = 140;
+    window.addEventListener('pointermove', e => {
+      const r = cta.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      const d = Math.hypot(dx, dy);
+      if (d < R) {
+        const pull = (1 - d / R) * 0.35;
+        cta.style.transform = `translate(${dx * pull}px, ${dy * pull}px)`;
+      } else {
+        cta.style.transform = '';
+      }
+    }, { passive: true });
+  }
+
+  /* ---------- canvas helper ---------- */
+  function makeViz(canvas, draw, opts = {}) {
+    const ctx = canvas.getContext('2d');
+    let w = 0, h = 0, raf = null, t = 0, sp = 1, spTarget = 1;
+    if (opts.hoverBoost) {
+      const host = canvas.closest('.card') || canvas;
+      host.addEventListener('pointerenter', () => { spTarget = opts.hoverBoost; });
+      host.addEventListener('pointerleave', () => { spTarget = 1; });
+    }
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const r = canvas.getBoundingClientRect();
+      w = r.width; h = r.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function frame() {
+      sp += (spTarget - sp) * 0.05;
+      t += sp;
+      draw(ctx, w, h, t, sp);
+      raf = requestAnimationFrame(frame);
+    }
+    function start() { if (!raf) { resize(); raf = requestAnimationFrame(frame); } }
+    function stop() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+    window.addEventListener('resize', () => { if (raf) resize(); });
+    if (reduced) {
+      resize(); t = 200; draw(ctx, w, h, t, 1);
+      window.addEventListener('resize', () => { resize(); draw(ctx, w, h, t, 1); });
+      return;
+    }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop()), { threshold: 0.05 }).observe(canvas);
+    } else start();
+  }
+
+  /* ---------- HERO: 3D particle iceberg + dive camera ---------- */
+  (() => {
+    const canvas = document.getElementById('berg');
+    if (!canvas) return;
+
+    const pts = [];
+    const tri = (a, b, c, n, col) => {
+      for (let i = 0; i < n; i++) {
+        let u = Math.random(), v = Math.random();
+        if (u + v > 1) { u = 1 - u; v = 1 - v; }
+        pts.push({
+          x: a[0] + u * (b[0] - a[0]) + v * (c[0] - a[0]),
+          y: a[1] + u * (b[1] - a[1]) + v * (c[1] - a[1]),
+          z: a[2] + u * (b[2] - a[2]) + v * (c[2] - a[2]),
+          c: col, p: Math.random() * Math.PI * 2
+        });
+      }
+    };
+    const apex = [0, 1.15, 0];
+    const topBase = [[0.85, 0, 0.85], [-0.85, 0, 0.85], [-0.85, 0, -0.85], [0.85, 0, -0.85]];
+    const botBase = [[0.55, -1.7, 0.55], [-0.55, -1.7, 0.55], [-0.55, -1.7, -0.55], [0.55, -1.7, -0.55]];
+    for (let i = 0; i < 4; i++) {
+      const j = (i + 1) % 4;
+      tri(apex, topBase[i], topBase[j], 190, 'a');
+      tri(topBase[i], topBase[j], botBase[j], 210, 'w');
+      tri(topBase[i], botBase[j], botBase[i], 210, 'w');
+    }
+    tri(botBase[0], botBase[1], botBase[2], 90, 'w');
+    tri(botBase[0], botBase[2], botBase[3], 90, 'w');
+
+    const dust = Array.from({ length: 110 }, () => ({
+      x: Math.random(), y: Math.random(), r: Math.random() * 1.2 + 0.3,
+      s: Math.random() * 0.00012 + 0.00004, p: Math.random() * Math.PI * 2
+    }));
+
+    let mx = 0, my = 0;
+    window.addEventListener('pointermove', e => {
+      mx = (e.clientX / window.innerWidth - 0.5);
+      my = (e.clientY / window.innerHeight - 0.5);
+    }, { passive: true });
+
+    makeViz(canvas, (ctx, w, h, t) => {
+      ctx.clearRect(0, 0, w, h);
+      const dp = diveP;
+
+      // dust — drifts down at the surface, rises like sediment at depth
+      const dir = 1 - 2 * ramp(dp, 0.3, 0.7);
+      for (const d of dust) {
+        const dy = ((d.y + t * d.s * dir) % 1 + 1) % 1;
+        const tw = 0.25 + 0.2 * Math.sin(t * 0.02 + d.p);
+        ctx.fillStyle = rgba(INK, tw * (0.35 + dp * 0.3));
+        ctx.beginPath();
+        ctx.arc(d.x * w, dy * h, d.r * (1 + dp * 0.6), 0, 7);
+        ctx.fill();
+      }
+
+      const cx = w * (w > 760 ? 0.66 : 0.5);
+      // camera dives: the model rides up as we sink below the waterline
+      const scale = Math.min(w, h) * 0.30;
+      const cy = h * 0.46 - scale * dp * 3.1;
+      const rotY = t * 0.004 + mx * 0.9;
+      const rotX = -0.14 + my * 0.35 + dp * 0.22;
+      const sy = Math.sin(rotY), cyr = Math.cos(rotY);
+      const sx = Math.sin(rotX), cxr = Math.cos(rotX);
+
+      // waterline ring
+      ctx.strokeStyle = rgba(ACCENT, 0.28 * (1 - ramp(dp, 0.5, 0.9) * 0.8));
+      ctx.setLineDash([2, 7]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, scale * 1.55, scale * 1.55 * Math.abs(sx) + 6, 0, 0, 7);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      for (const p of pts) {
+        const br = 1 + 0.02 * Math.sin(t * 0.015 + p.p);
+        let x = p.x * br, y = p.y * br, z = p.z * br;
+        let x1 = x * cyr - z * sy, z1 = x * sy + z * cyr;
+        let y1 = y * cxr - z1 * sx, z2 = y * sx + z1 * cxr;
+        const persp = 1 / (1 + z2 * 0.18);
+        const px = cx + x1 * scale * persp;
+        const py = cy - y1 * scale * persp;
+        if (py < -30 || py > h + 30) continue;
+        const depth = Math.max(0.15, Math.min(1, persp - 0.1));
+        if (p.c === 'a') {
+          ctx.fillStyle = rgba(ACCENT, 0.85 * depth);
+        } else {
+          // submerged points brighten as the camera reaches their depth
+          ctx.fillStyle = rgba(INK, (0.28 + dp * 0.35) * depth);
+        }
+        ctx.beginPath();
+        ctx.arc(px, py, 1.4 * persp, 0, 7);
+        ctx.fill();
+      }
+
+      // apex beacon
+      const bx = cx + (apex[0] * cyr - apex[2] * sy) * scale;
+      const by = cy - (apex[1] * cxr - (apex[0] * sy + apex[2] * cyr) * sx) * scale;
+      if (by > -40) {
+        const g = ctx.createRadialGradient(bx, by, 0, bx, by, 26);
+        g.addColorStop(0, rgba(ACCENT, 0.5));
+        g.addColorStop(1, rgba(ACCENT, 0));
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(bx, by, 26, 0, 7); ctx.fill();
+      }
+
+      // depth vignette
+      if (dp > 0.02) {
+        const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h) * 0.75);
+        vg.addColorStop(0, 'rgba(11,10,8,0)');
+        vg.addColorStop(1, `rgba(11,10,8,${0.55 * dp})`);
+        ctx.fillStyle = vg;
+        ctx.fillRect(0, 0, w, h);
+      }
+    });
+  })();
+
+  /* ---------- CARD 1: rotating tesseract ---------- */
+  function tesseractViz(ctx, w, h, t) {
+    ctx.clearRect(0, 0, w, h);
+    const V = [];
+    for (let i = 0; i < 16; i++) V.push([i & 1 ? 1 : -1, i & 2 ? 1 : -1, i & 4 ? 1 : -1, i & 8 ? 1 : -1]);
+    const a = t * 0.008, b = t * 0.005;
+    const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
+    const P = V.map(v => {
+      let [x, y, z, u] = v;
+      let x1 = x * ca - u * sa, u1 = x * sa + u * ca;
+      let y1 = y * cb - z * sb, z1 = y * sb + z * cb;
+      const d4 = 1 / (2.4 - u1);
+      let X = x1 * d4 * 2.4, Y = y1 * d4 * 2.4, Z = z1 * d4 * 2.4;
+      const d3 = 1 / (1 + Z * 0.12);
+      return [w / 2 + X * w * 0.19 * d3, h / 2 + Y * w * 0.19 * d3, d3, u1];
+    });
+    for (let i = 0; i < 16; i++) for (let j = i + 1; j < 16; j++) {
+      const d = i ^ j;
+      if (d && !(d & (d - 1))) {
+        const inner = (i & 8) && (j & 8);
+        ctx.strokeStyle = rgba(inner ? INK : ACCENT, inner ? 0.18 : 0.4);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(P[i][0], P[i][1]);
+        ctx.lineTo(P[j][0], P[j][1]);
+        ctx.stroke();
+      }
+    }
+    for (const p of P) {
+      ctx.fillStyle = rgba(ACCENT, 0.9 * p[2]);
+      ctx.beginPath(); ctx.arc(p[0], p[1], 1.8 * p[2], 0, 7); ctx.fill();
+    }
+  }
+
+  /* ---------- CARD 2: symbiotic orbits ---------- */
+  const orbiters = Array.from({ length: 64 }, (_, i) => ({
+    a: (i / 64) * Math.PI * 2,
+    side: i % 2,
+    sp: 0.008 + Math.random() * 0.004,
+    ph: Math.random() * Math.PI * 2
+  }));
+  function orbitViz(ctx, w, h, t, dt) {
+    ctx.fillStyle = 'rgba(11,10,8,0.28)';
+    ctx.fillRect(0, 0, w, h);
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.32;
+    const mix = (Math.sin(t * 0.006) + 1) / 2;
+    for (const o of orbiters) {
+      o.a += o.sp * dt;
+      const m = o.side ? mix : 1 - mix;
+      const r = R * (0.55 + 0.45 * m) + Math.sin(t * 0.02 + o.ph) * 3;
+      const tilt = o.side ? 0.55 : -0.55;
+      const x = cx + Math.cos(o.a) * r;
+      const y = cy + Math.sin(o.a) * r * (0.45 + Math.abs(tilt) * 0.3) + Math.cos(o.a) * r * tilt * 0.18;
+      const c = o.side ? ACCENT : INK;
+      ctx.fillStyle = rgba(c, o.side ? 0.8 : 0.4);
+      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, 7); ctx.fill();
+    }
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 14);
+    g.addColorStop(0, rgba(ACCENT, 0.55));
+    g.addColorStop(1, rgba(ACCENT, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, 14, 0, 7); ctx.fill();
+  }
+
+  /* ---------- CARD 3: constellation ---------- */
+  const nodes = Array.from({ length: 26 }, () => ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random() - 0.5) * 0.0011, vy: (Math.random() - 0.5) * 0.0011,
+    hot: Math.random() < 0.25
+  }));
+  function networkViz(ctx, w, h, t, dt) {
+    ctx.clearRect(0, 0, w, h);
+    for (const n of nodes) {
+      n.x += n.vx * dt; n.y += n.vy * dt;
+      if (n.x < 0.04 || n.x > 0.96) n.vx *= -1;
+      if (n.y < 0.06 || n.y > 0.94) n.vy *= -1;
+    }
+    const th = Math.min(w, h) * 0.34;
+    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+      const A = nodes[i], B = nodes[j];
+      const dx = (A.x - B.x) * w, dy = (A.y - B.y) * h;
+      const d = Math.hypot(dx, dy);
+      if (d < th) {
+        const hot = A.hot && B.hot;
+        ctx.strokeStyle = rgba(hot ? ACCENT : INK, (1 - d / th) * (hot ? 0.5 : 0.14));
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(A.x * w, A.y * h); ctx.lineTo(B.x * w, B.y * h); ctx.stroke();
+      }
+    }
+    for (const n of nodes) {
+      const tw = n.hot ? 0.9 : 0.5 + 0.2 * Math.sin(t * 0.03 + n.x * 9);
+      ctx.fillStyle = rgba(n.hot ? ACCENT : INK, tw);
+      ctx.beginPath(); ctx.arc(n.x * w, n.y * h, n.hot ? 2.2 : 1.4, 0, 7); ctx.fill();
+    }
+  }
+
+  const vizMap = { tesseract: tesseractViz, orbit: orbitViz, network: networkViz };
+  document.querySelectorAll('canvas[data-viz]').forEach(c => makeViz(c, vizMap[c.dataset.viz], { hoverBoost: 2.6 }));
+
+  /* ---------- ENGAGE: breathing halo ---------- */
+  (() => {
+    const canvas = document.getElementById('halo');
+    if (!canvas) return;
+    makeViz(canvas, (ctx, w, h, t) => {
+      ctx.clearRect(0, 0, w, h);
+      const cx = w / 2, cy = h * 0.42;
+      const base = Math.min(w, h) * 0.42;
+      for (let i = 0; i < 3; i++) {
+        const r = base * (0.55 + i * 0.28) * (1 + 0.03 * Math.sin(t * 0.012 + i * 1.8));
+        ctx.strokeStyle = rgba(ACCENT, 0.12 - i * 0.03);
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+      }
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, base);
+      g.addColorStop(0, rgba(ACCENT, 0.07));
+      g.addColorStop(1, rgba(ACCENT, 0));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    });
+  })();
+})();
+</script>
+
+</body>
+</html>
